@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Auto Dialer & Lead Manager with Support System</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    body { font-family: system-ui, -apple-system, sans-serif; background-color: #0f172a; color: #f8fafc; padding: 10px; padding-bottom: 90px; user-select: none; }
+    
+    /* Sundar & Attractive Splash Screen */
+    #splashScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #0f172a, #1e293b, #0f172a); z-index: 999999; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; transition: opacity 0.5s ease; }
+    .splash-card { background: rgba(30, 41, 59, 0.7); border: 2px solid #22c55e; border-radius: 24px; padding: 35px 25px; width: 100%; max-width: 360px; box-shadow: 0 0 40px rgba(34, 197, 94, 0.4); display: flex; flex-direction: column; align-items: center; gap: 15px; backdrop-filter: blur(10px); animation: splashPulse 1.5s infinite alternate; }
+    @keyframes splashPulse { 0% { transform: scale(1); box-shadow: 0 0 25px rgba(34, 197, 94, 0.3); } 100% { transform: scale(1.03); box-shadow: 0 0 50px rgba(34, 197, 94, 0.6); } }
+    .splash-logo-circle { width: 80px; height: 80px; background: linear-gradient(135deg, #22c55e, #15803d); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 36px; box-shadow: 0 6px 20px rgba(34, 197, 94, 0.6); animation: bounceLogo 1s infinite alternate; }
+    @keyframes bounceLogo { 0% { transform: translateY(0); } 100% { transform: translateY(-6px); } }
+
+    /* Top Bar Styling */
+    .top-slider { height: 75px; background: rgba(34, 197, 94, 0.12); border: 2px solid #22c55e; border-radius: 14px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; padding: 0 14px; overflow: hidden; box-shadow: 0 0 22px rgba(34, 197, 94, 0.35), inset 0 0 12px rgba(34, 197, 94, 0.2); transition: all 0.3s ease; position: relative; }
+    .calling-man-icon { font-size: 28px; margin-right: 8px; flex-shrink: 0; color: #38bdf8; display: flex; align-items: center; }
+    .computer-wave-flow { display: flex; align-items: center; gap: 4px; margin-right: 10px; }
+    .computer-wave-flow span { display: block; width: 3px; background-color: #38bdf8; border-radius: 2px; animation: flowWave 1s infinite ease-in-out; }
+    .computer-wave-flow span:nth-child(1) { animation-delay: 0.1s; height: 6px; }
+    .computer-wave-flow span:nth-child(2) { animation-delay: 0.3s; height: 12px; }
+    .computer-wave-flow span:nth-child(3) { animation-delay: 0.2s; height: 16px; }
+    .computer-wave-flow span:nth-child(4) { animation-delay: 0.4s; height: 10px; }
+    @keyframes flowWave {
+      0%, 100% { transform: scaleY(0.4); opacity: 0.4; }
+      50% { transform: scaleY(1); opacity: 1; filter: drop-shadow(0 0 5px #38bdf8); }
+    }
+
+    .slider-track { flex: 1; overflow: hidden; display: flex; align-items: center; }
+    .slider-text { font-size: 15px; font-weight: bold; color: #22c55e; letter-spacing: 0.5px; text-shadow: 0 0 10px rgba(34, 197, 94, 0.5); }
+
+    .top-bar-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; margin-left: 8px; }
+    .shake-icon { font-size: 20px; color: #90EE38; display: inline-block; animation: shakeEffect 0.8s infinite ease-in-out; }
+    @keyframes shakeEffect {
+      0% { transform: rotate(0deg); }
+      20% { transform: rotate(-15deg); }
+      40% { transform: rotate(15deg); }
+      60% { transform: rotate(-10deg); }
+      80% { transform: rotate(10deg); }
+      100% { transform: rotate(0deg); }
+    }
+    .top-bar-wave { display: flex; align-items: center; gap: 3px; height: 18px; }
+    .top-bar-wave span { display: block; width: 3px; background-color: #90EE38; border-radius: 2px; animation: waveEffect 1.2s infinite ease-in-out; }
+    .top-bar-wave span:nth-child(1) { animation-delay: 0.1s; height: 8px; }
+    .top-bar-wave span:nth-child(2) { animation-delay: 0.3s; height: 16px; }
+    .top-bar-wave span:nth-child(3) { animation-delay: 0.2s; height: 12px; }
+    .top-bar-wave span:nth-child(4) { animation-delay: 0.4s; height: 6px; }
+    @keyframes waveEffect {
+      0%, 100% { transform: scaleY(0.4); opacity: 0.5; }
+      50% { transform: scaleY(1); opacity: 1; }
+    }
+
+    .live-call-container { display: none; align-items: center; justify-content: space-between; width: 100%; }
+    .top-slider.live-calling .slider-track { display: none; }
+    .top-slider.live-calling .live-call-container { display: flex; }
+    .call-info-text { font-size: 12px; font-weight: bold; color: #22c55e; display: flex; flex-direction: column; gap: 2px; }
+    .call-info-number { font-size: 14px; color: #fff; font-family: monospace; }
+    .call-timer-badge { font-size: 11px; background: #22c55e; color: #0f172a; padding: 2px 6px; border-radius: 10px; font-weight: bold; display: inline-block; margin-left: 5px; }
+    
+    .voice-waves { display: flex; align-items: center; gap: 3px; height: 20px; }
+    .voice-bar { width: 3px; background: #22c55e; border-radius: 3px; animation: waveAnim 0.8s infinite ease-in-out alternate; }
+    .voice-bar:nth-child(1) { animation-delay: 0.1s; }
+    .voice-bar:nth-child(2) { animation-delay: 0.3s; }
+    .voice-bar:nth-child(3) { animation-delay: 0.5s; }
+    .voice-bar:nth-child(4) { animation-delay: 0.2s; }
+    .voice-bar:nth-child(5) { animation-delay: 0.4s; }
+    @keyframes waveAnim { 0% { height: 5px; } 100% { height: 18px; } }
+    
+    .summary-section { margin-bottom: 8px; display: flex; flex-direction: column; gap: 4px; }
+    .summary-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
+    .summary-box { background: #1e293b; padding: 6px; border-radius: 10px; border: 1px solid #334155; display: flex; flex-direction: column; justify-content: space-between; min-height: 85px; }
+    .summary-box.int { border-top: 3px solid #22c55e; }
+    .summary-box.not-int { border-top: 3px solid #ef4444; }
+    .summary-box.time-box { border-top: 3px solid #eab308; }
+    .summary-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+    .summary-title { font-size: 10px; font-weight: bold; }
+    .copy-btn { background: #334155; color: #fff; border: none; padding: 2px 5px; border-radius: 4px; font-size: 9px; cursor: pointer; }
+    .summary-list { font-family: monospace; font-size: 10px; color: #cbd5e1; height: 55px; overflow-y: auto; white-space: pre-wrap; word-break: break-all; background: #0f172a; padding: 4px; border-radius: 6px; }
+
+    .partner-apps-bar { background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 6px 8px; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; overflow: hidden; }
+    .static-group { display: flex; gap: 6px; flex-shrink: 0; border-right: 1px solid #475569; padding-right: 6px; }
+    .slider-group { flex: 1; overflow: hidden; white-space: nowrap; position: relative; display: flex; }
+    .partner-scroll { display: inline-flex; gap: 6px; animation: partnerScroll 12s linear infinite; }
+    @keyframes partnerScroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+    .app-chip { background: #0f172a; border: 1px solid #475569; padding: 4px 8px; border-radius: 20px; font-size: 9px; font-weight: bold; color: #38bdf8; display: inline-flex; align-items: center; gap: 3px; flex-shrink: 0; cursor: pointer; text-decoration: none; }
+    .app-chip.pinned { border-color: #38bdf8; background: #1e293b; color: #fbbf24; }
+
+    .inputs-row { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 8px; }
+    .add-box { background: #1e293b; padding: 8px; border-radius: 10px; display: flex; flex-direction: column; gap: 4px; border: 1px solid #334155; }
+    textarea { width: 100%; height: 45px; background: #0f172a; color: #fff; padding: 6px; border: 1px solid #334155; border-radius: 6px; font-family: monospace; font-size: 11px; outline: none; resize: none; user-select: text; }
+    textarea:focus { border-color: #38bdf8; }
+    
+    .btn-row { display: flex; gap: 4px; width: 100%; }
+    .btn-danger, .btn-primary, .btn-excel { flex: 1; font-weight: bold; padding: 8px 2px; border: none; border-radius: 6px; cursor: pointer; font-size: 10px; display: inline-flex; align-items: center; justify-content: center; gap: 2px; }
+    .btn-danger { background: #ef4444; color: #fff; }
+    .btn-primary { background: #38bdf8; color: #0f172a; }
+    .btn-excel { background: #107c41; color: #fff; }
+
+    .wa-queue-bar { background: #14532d; border: 1px solid #22c55e; padding: 8px 10px; border-radius: 8px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+    .wa-queue-btn { background: #22c55e; color: #0f172a; font-weight: bold; border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 11px; }
+    .stats-bar { display: flex; justify-content: space-between; align-items: center; background: #1e293b; padding: 8px 10px; border-radius: 8px; margin-bottom: 8px; font-size: 12px; border: 1px solid #334155; }
+    .container { display: flex; flex-direction: column; gap: 8px; }
+    .num-card-box { background: #1e293b; padding: 8px; border-radius: 10px; display: flex; flex-direction: column; gap: 6px; border: 1px solid #334155; }
+    .action-row { display: flex; gap: 6px; }
+    .num-card { flex: 1; display: flex; align-items: center; justify-content: center; padding: 8px; background: #22c55e; color: #fff; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 13px; }
+    .num-card.called { background: #ef4444 !important; }
+    .wa-btn { padding: 8px 12px; background: #25D366; color: #fff; text-decoration: none; border-radius: 6px; font-weight: bold; display: flex; align-items: center; justify-content: center; font-size: 12px; }
+    .delete-single-btn { background: #475569; color: #fff; border: none; padding: 8px 10px; border-radius: 6px; cursor: pointer; }
+    .status-buttons-row { display: flex; gap: 4px; }
+    .sub-btn { flex: 1; padding: 6px 2px; background: #0f172a; color: #94a3b8; border: 1px solid #334155; border-radius: 6px; cursor: pointer; font-size: 10px; font-weight: bold; }
+    .sub-btn.interested { background: #0f172a; color: #22c55e; border-color: #22c55e; }
+    .sub-btn.not-interested { background: #0f172a; color: #ef4444; border-color: #ef4444; }
+    .sub-btn.time { background: #0f172a; color: #eab308; border-color: #eab308; }
+    .sub-btn:disabled { opacity: 0.35; cursor: not-allowed; border-color: #334155 !important; color: #64748b !important; }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    .tab-view-box { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 12px; margin-top: 10px; }
+    .tab-title { font-size: 15px; font-weight: bold; color: #38bdf8; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #334155; padding-bottom: 8px; }
+    
+    .client-filter-box { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; }
+    .client-filter-box select, .client-filter-box input { width: 100%; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 8px; border-radius: 6px; font-size: 11px; outline: none; }
+    
+    .client-action-buttons { display: flex; gap: 6px; margin-bottom: 10px; }
+    .client-action-buttons button { flex: 1; padding: 8px; font-weight: bold; border-radius: 6px; border: none; font-size: 11px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; }
+    .client-table-container { max-height: 380px; overflow-y: auto; background: #0f172a; border: 1px solid #334155; border-radius: 8px; }
+    .client-table { width: 100%; border-collapse: collapse; font-size: 11px; text-align: left; }
+    .client-table th { background: #1e293b; color: #38bdf8; padding: 8px; border-bottom: 1px solid #334155; position: sticky; top: 0; }
+    .client-table td { padding: 8px; border-bottom: 1px solid #1e293b; font-family: monospace; color: #cbd5e1; }
+    .badge-int { color: #22c55e; font-weight: bold; }
+    .badge-not { color: #ef4444; font-weight: bold; }
+    .badge-time { color: #eab308; font-weight: bold; }
+    
+    .client-call-link { color: #ffffff; text-decoration: none; font-weight: bold; display: inline-flex; align-items: center; gap: 6px; }
+    .client-call-link:hover { text-decoration: underline; color: #22c55e; }
+    .client-shake-phone { color: #22c55e; display: inline-block; animation: shakeEffect 0.8s infinite ease-in-out; }
+
+    .call-history-item { background: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 10px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+    .history-num { font-size: 14px; font-weight: bold; font-family: monospace; color: #22c55e; }
+    .history-time { font-size: 11px; color: #94a3b8; }
+    .history-duration { font-size: 11px; font-weight: bold; color: #eab308; }
+    .history-btn-group { display: flex; gap: 6px; }
+
+    .support-card { background: #0f172a; border: 1px solid #334155; border-radius: 10px; padding: 16px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+    .support-btn { width: 100%; background: #25D366; color: #fff; font-weight: bold; font-size: 14px; padding: 12px; border: none; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; box-shadow: 0 4px 12px rgba(37, 211, 102, 0.2); }
+
+    .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; height: 60px; background-color: #1e293b; border-top: 1px solid #334155; display: flex; justify-content: space-around; align-items: center; z-index: 1000; padding: 0 5px; }
+    .nav-item { background: none; border: none; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #94a3b8; font-size: 10px; cursor: pointer; outline: none; flex: 1; text-decoration: none; }
+    .nav-item i { font-size: 16px; margin-bottom: 3px; }
+    .nav-item.active { color: #38bdf8; font-weight: bold; }
+
+    .camera-center-btn { background: linear-gradient(135deg, #38bdf8, #0284c7); color: #fff; width: 52px; height: 52px; border-radius: 50%; border: 3px solid #0f172a; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(56, 189, 248, 0.5); margin-top: -22px; cursor: pointer; }
+    .camera-center-btn i { font-size: 20px; }
+    .camera-center-btn span { font-size: 8px; font-weight: bold; }
+
+    .camera-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.95); z-index: 99999; flex-direction: column; align-items: center; justify-content: center; padding: 12px; }
+    .camera-box { width: 96%; max-width: 460px; background: #1e293b; border: 1px solid #38bdf8; border-radius: 12px; padding: 12px; text-align: center; position: relative; max-height: 92vh; display: flex; flex-direction: column; }
+    .camera-preview { width: 100%; height: 380px; max-height: 58vh; background: #0f172a; border: 2px dashed #38bdf8; border-radius: 8px; margin: 10px 0; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; }
+    .camera-preview img { width: 100%; height: 100%; object-fit: contain; }
+    .ocr-loader { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.92); color: #38bdf8; font-weight: bold; font-size: 13px; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 15px; }
+
+    #toast { position: fixed; bottom: 75px; left: 50%; transform: translateX(-50%); background: #22c55e; color: #0f172a; padding: 8px 16px; border-radius: 20px; font-weight: bold; font-size: 12px; z-index: 100000; display: none; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+
+    /* Loud Call Alarm Ringing Popup Modal */
+    #alarmModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.96); z-index: 9999999; flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center; }
+    .alarm-card { background: #1e293b; border: 3px solid #eab308; border-radius: 20px; padding: 25px; width: 100%; max-width: 380px; box-shadow: 0 0 50px rgba(234, 179, 8, 0.8); display: flex; flex-direction: column; align-items: center; gap: 15px; animation: alarmPulse 0.5s infinite alternate; }
+    @keyframes alarmPulse { 0% { transform: scale(1); box-shadow: 0 0 25px rgba(234, 179, 8, 0.5); } 100% { transform: scale(1.04); box-shadow: 0 0 60px rgba(234, 179, 8, 0.9); } }
+    .alarm-bell-icon { font-size: 60px; color: #eab308; animation: ringBell 0.3s infinite ease-in-out; }
+    @keyframes ringBell { 0% { transform: rotate(0deg); } 20% { transform: rotate(-30deg); } 40% { transform: rotate(30deg); } 60% { transform: rotate(-20deg); } 80% { transform: rotate(20deg); } 100% { transform: rotate(0deg); } }
+    .alarm-phone-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: #22c55e; color: #fff; text-decoration: none; font-weight: bold; font-size: 16px; padding: 12px 20px; border-radius: 10px; width: 100%; box-shadow: 0 4px 15px rgba(34, 197, 94, 0.5); }
+    .alarm-stop-btn { background: #ef4444; color: #fff; font-weight: bold; border: none; padding: 12px 20px; border-radius: 8px; font-size: 14px; cursor: pointer; width: 100%; }
+  </style>
+</head>
+<body oncontextmenu="return false;" onclick="unlockAudioContext()">
+
+  <div id="splashScreen">
+    <div class="splash-card">
+      <div class="splash-logo-circle">
+        <i class="fas fa-headset"></i>
+      </div>
+      <div>
+        <h2 style="font-size: 20px; color: #22c55e; font-weight: bold; margin-bottom: 4px;">Auto Dialer & Lead Manager</h2>
+        <p style="font-size: 11px; color: #94a3b8;">Smart Calling & WhatsApp Lead System</p>
+      </div>
+      <div style="display: flex; align-items: center; gap: 6px; margin-top: 5px; color: #38bdf8; font-size: 11px; font-weight: bold;">
+        <i class="fas fa-spinner fa-spin"></i> Loading Application...
+      </div>
+    </div>
+  </div>
+
+  <div id="alarmModal">
+    <div class="alarm-card">
+      <i class="fas fa-bell alarm-bell-icon"></i>
+      <div>
+        <h3 style="font-size: 20px; color: #eab308; font-weight: bold;">⏰ CALL REMINDER ALERT!</h3>
+        <p style="font-size: 14px; color: #f8fafc; margin-top: 6px; font-weight: bold;" id="alarmCustomerInfo">Is customer ko call karne ka time ho gaya hai!</p>
+      </div>
+      <a id="alarmCallBtn" href="#" class="alarm-phone-btn" onclick="dismissAlarm()">
+        <i class="fas fa-phone-alt"></i> Call Now (<span id="alarmNumText">---</span>)
+      </a>
+      <button class="alarm-stop-btn" onclick="dismissAlarm()">STOP RINGING / DISMISS</button>
+    </div>
+  </div>
+
+  <div id="toast"><span id="toastText">Link Copied! 📋</span></div>
+
+  <div class="top-slider" id="topSliderBar">
+    <div style="display: flex; align-items: center; flex: 1; overflow: hidden;">
+      <div class="calling-man-icon" id="sliderIcon">
+        <i class="fas fa-desktop"></i>
+      </div>
+      <div class="computer-wave-flow">
+        <span></span><span></span><span></span><span></span>
+      </div>
+      <div class="slider-track">
+        <div class="slider-text">Smart Dialer</div>
+      </div>
+      <div class="live-call-container">
+        <div class="call-info-text">
+          <span>🟢 Calling Running... <span class="call-timer-badge" id="liveCallTimer">00:00</span></span>
+          <span class="call-info-number" id="activeCallNum">---</span>
+        </div>
+        <div class="voice-waves">
+          <div class="voice-bar"></div><div class="voice-bar"></div><div class="voice-bar"></div><div class="voice-bar"></div><div class="voice-bar"></div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="top-bar-right">
+      <div class="shake-icon">
+        <i class="fas fa-phone-alt"></i>
+      </div>
+      <div class="top-bar-wave">
+        <span></span><span></span><span></span><span></span>
+      </div>
+    </div>
+  </div>
+
+  <div id="tab-home" class="tab-content active">
+    <div class="summary-section">
+      <div style="font-size: 12px; font-weight: bold; color: #38bdf8; margin-left: 2px;">📊 Categorized Lists</div>
+      <div class="summary-grid">
+        <div class="summary-box int">
+          <div class="summary-header">
+            <span class="summary-title" style="color:#22c55e;">👍 Int (<span id="countInt">0</span>)</span>
+            <button class="copy-btn" onclick="copyText('listInt')">📋</button>
+          </div>
+          <div class="summary-list" id="listInt">Koi nahi</div>
+        </div>
+        <div class="summary-box not-int">
+          <div class="summary-header">
+            <span class="summary-title" style="color:#ef4444;">👎 Not (<span id="countNotInt">0</span>)</span>
+            <button class="copy-btn" onclick="copyText('listNotInt')">📋</button>
+          </div>
+          <div class="summary-list" id="listNotInt">Koi nahi</div>
+        </div>
+        <div class="summary-box time-box">
+          <div class="summary-header">
+            <span class="summary-title" style="color:#eab308;">⏰ Time (<span id="countTime">0</span>)</span>
+            <button class="copy-btn" onclick="copyText('listTime')">📋</button>
+          </div>
+          <div class="summary-list" id="listTime">Koi nahi</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="partner-apps-bar">
+      <div class="static-group">
+        <a class="app-chip pinned" onclick="copyAngelLink()">📊 Angel One</a>
+        <span class="app-chip pinned">📈 Upstox</span>
+        <a class="app-chip pinned" onclick="copyNaviLink()">📱 Navi</a>
+      </div>
+      <div class="slider-group">
+        <div class="partner-scroll">
+          <span class="app-chip">🏦 AU Bank</span><span class="app-chip">📉 5paisa</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="inputs-row">
+      <div class="add-box">
+        <label style="font-size: 10px; color: #25D366; font-weight: bold;">💬 WA Message:</label>
+        <textarea id="defaultMsg" placeholder="Message yahan likhein..."></textarea>
+      </div>
+      <div class="add-box">
+        <label style="font-size: 10px; color: #38bdf8; font-weight: bold;">➕ Add Numbers:</label>
+        <textarea id="bulkInput" placeholder="Numbers paste, Excel upload ya AI Cam se scan karein..."></textarea>
+        
+        <div class="btn-row">
+          <button class="btn-danger" onclick="clearAllNumbers()">🗑 Clear</button>
+          <button class="btn-primary" onclick="addBulkNumbers()">+ Add</button>
+          
+          <input type="file" id="excelFileInput" accept=".xlsx, .xls, .csv" style="display:none;" onchange="importExcelFile(this)">
+          <button class="btn-excel" onclick="triggerExcelUpload()"><i class="fas fa-file-excel"></i> Excel</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="wa-queue-bar">
+      <div style="font-size:11px; font-weight:bold; color:#f8fafc;">💬 Send WA to Top 10 (<span id="queueProgress">0/0</span>)</div>
+      <button class="wa-queue-btn" id="startWaBtn" onclick="handleWaQueueClick()">🚀 Start 10-WA Queue</button>
+    </div>
+
+    <div class="stats-bar">
+      <div>Pending: <span id="pendingCount" style="color:#38bdf8;">0</span> | Total: <span id="totalCount">0</span> | Called: <span id="calledCount" style="color:#ef4444;">0</span></div>
+      <button style="background:none; border:none; color:#38bdf8; font-size:11px; cursor:pointer;" onclick="resetCalledStatus()">Reset Calls</button>
+    </div>
+
+    <div class="container" id="numberList"></div>
+  </div>
+
+  <div id="tab-clients" class="tab-content">
+    <div class="tab-view-box">
+      <div class="tab-title"><span><i class="fas fa-user-friends"></i> Client Database</span></div>
+      
+      <div class="client-filter-box">
+        <select id="clientFilterCategory" onchange="renderClientTable()">
+          <option value="all">🔍 All Categories (Interested / Not / Timing)</option>
+          <option value="interested">👍 Interested Only</option>
+          <option value="not_interested">👎 Not Interested Only</option>
+          <option value="time">⏰ Timing / Notes Only</option>
+        </select>
+        <input type="text" id="clientSearchInput" placeholder="🔍 Search number or timing..." oninput="renderClientTable()">
+      </div>
+
+      <div class="client-action-buttons">
+        <button class="btn-primary" onclick="copyFilteredClients()"><i class="fas fa-copy"></i> Copy Filtered Data</button>
+        <button class="btn-excel" onclick="downloadClientExcel()"><i class="fas fa-file-excel"></i> Download Excel</button>
+      </div>
+
+      <div class="client-table-container">
+        <table class="client-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Phone Number</th>
+              <th>Category</th>
+              <th>Timing / Details</th>
+            </tr>
+          </thead>
+          <tbody id="clientTableBody">
+            <tr><td colspan="4" style="text-align: center; color: #64748b; padding: 20px;">No client records found.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div id="tab-mycalls" class="tab-content">
+    <div class="tab-view-box">
+      <div class="tab-title">
+        <span><i class="fas fa-phone-alt"></i> Call History (<span id="historyCount">0</span>)</span>
+        <div class="history-btn-group">
+          <button class="copy-btn" style="background:#22c55e; color:#0f172a; font-weight:bold; padding:4px 8px; font-size:11px;" onclick="copyCallHistoryExcel()">📋 Copy All (Excel)</button>
+          <button class="copy-btn" style="background:#ef4444; color:#fff; font-weight:bold; padding:4px 8px; font-size:11px;" onclick="clearCallHistory()">🗑 Clear</button>
+        </div>
+      </div>
+      <div id="callHistoryList"></div>
+    </div>
+  </div>
+
+  <div id="tab-support" class="tab-content">
+    <div class="tab-view-box">
+      <div class="tab-title"><span><i class="fas fa-headset"></i> Support & Helpdesk</span></div>
+      <div class="support-card">
+        <i class="fab fa-whatsapp" style="font-size: 50px; color: #25D366;"></i>
+        <div>
+          <strong style="font-size: 16px; color: #f8fafc;">Need Help or Support?</strong>
+          <p style="color: #94a3b8; font-size: 12px; margin-top: 6px;">Aapko kisi bhi tarah ki madad chahiye toh seedha hamari support team se WhatsApp par chat karein.</p>
+        </div>
+        <button class="support-btn" onclick="openSupportWhatsApp()">
+          <i class="fab fa-whatsapp" style="font-size: 20px;"></i> Chat on WhatsApp
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="camera-modal" id="cameraModal">
+    <div class="camera-box">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <span style="font-size: 14px; font-weight:bold; color: #38bdf8;">⚡ Fast AI Multi-OCR Scanner</span>
+        <button onclick="closeAiCamera()" style="background:none; border:none; color:#ef4444; font-size:18px; cursor:pointer;">✖</button>
+      </div>
+      <div class="camera-preview">
+        <img id="capturedImg" style="display:none;" />
+        <div id="placeholderText" style="color:#64748b; font-size:12px;">Ek sath 1 se 20 Screenshots select karke fast scan karein</div>
+        <div class="ocr-loader" id="ocrLoader">
+          <i class="fas fa-spinner fa-spin fa-2x"></i>
+          <span id="ocrStatusText">Fast Scanning Screenshots...</span>
+        </div>
+      </div>
+      <input type="file" id="cameraDirectInput" accept="image/*" capture="environment" style="display:none;" onchange="processMultipleImages(this)">
+      <input type="file" id="galleryFileInput" accept="image/*" multiple style="display:none;" onchange="processMultipleImages(this)">
+      <div style="display:flex; gap:6px;">
+        <button class="btn-primary" onclick="triggerDirectCamera()">📸 Capture Photo</button>
+        <button class="btn-primary" style="background:#22c55e;" onclick="triggerGalleryUpload()">🖼️ Select Up to 20 Photos</button>
+      </div>
+    </div>
+  </div>
+
+  <nav class="bottom-nav">
+      <button class="nav-item active" id="nav-home" onclick="switchTab('tab-home', this, true)"><i class="fas fa-home"></i><span>Home</span></button>
+      <button class="nav-item" id="nav-clients" onclick="switchTab('tab-clients', this, true)"><i class="fas fa-user-friends"></i><span>Clients</span></button>
+      <button class="camera-center-btn" onclick="openAiCamera()"><i class="fas fa-camera"></i><span>AI CAM</span></button>
+      <button class="nav-item" id="nav-mycalls" onclick="switchTab('tab-mycalls', this, true)"><i class="fas fa-phone-alt"></i><span>My Calls</span></button>
+      <button class="nav-item" id="nav-support" onclick="switchTab('tab-support', this, true)"><i class="fab fa-whatsapp" style="color: #25D366; font-size: 18px;"></i><span>Support</span></button>
+  </nav>
+
+  <script>
+    document.addEventListener('contextmenu', function(e) { e.preventDefault(); });
+
+    // Splash Screen Hide after 2 seconds automatically
+    window.addEventListener('load', function() {
+      setTimeout(() => {
+        const splash = document.getElementById('splashScreen');
+        splash.style.opacity = '0';
+        setTimeout(() => { splash.style.display = 'none'; }, 500);
+      }, 1800);
+    });
+
+    const SUPPORT_PHONE_NUMBER = "919876543210"; 
+    function openSupportWhatsApp() {
+      const supportMsg = encodeURIComponent("Hello Support Team, mujhe is app ke regarding help chahiye.");
+      window.open(`https://api.whatsapp.com/send?phone=${SUPPORT_PHONE_NUMBER}&text=${supportMsg}`, '_blank');
+    }
+
+    // Tab Navigation with Browser History Stack Support for Back Button
+    function switchTab(tabId, el, pushHistory = true) {
+      document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
+      
+      document.getElementById(tabId).classList.add('active');
+      if (el) el.classList.add('active');
+
+      if (pushHistory) {
+        history.pushState({ tab: tabId }, "", "");
+      }
+
+      if (tabId === 'tab-mycalls') renderCallHistory();
+      if (tabId === 'tab-clients') renderClientTable();
+    }
+
+    // Handle Hardware/Browser Back Button step-by-step
+    window.addEventListener('popstate', function(event) {
+      const cameraModal = document.getElementById('cameraModal');
+      const alarmModal = document.getElementById('alarmModal');
+
+      if (alarmModal.style.display === 'flex') {
+        dismissAlarm();
+        history.pushState({ modal: 'none' }, "", "");
+        return;
+      }
+      if (cameraModal.style.display === 'flex') {
+        closeAiCamera();
+        history.pushState({ modal: 'none' }, "", "");
+        return;
+      }
+
+      if (event.state && event.state.tab) {
+        switchTab(event.state.tab, document.getElementById('nav-' + event.state.tab.replace('tab-', '')), false);
+      } else {
+        switchTab('tab-home', document.getElementById('nav-home'), false);
+      }
+    });
+
+    function openAiCamera() { 
+      document.getElementById('cameraModal').style.display = 'flex'; 
+      history.pushState({ modal: 'camera' }, "", "");
+    }
+    
+    function closeAiCamera() {
+      document.getElementById('cameraModal').style.display = 'none';
+      document.getElementById('ocrLoader').style.display = 'none';
+      document.getElementById('capturedImg').style.display = 'none';
+      document.getElementById('placeholderText').style.display = 'block';
+    }
+
+    function triggerDirectCamera() { document.getElementById('cameraDirectInput').click(); }
+    function triggerGalleryUpload() { document.getElementById('galleryFileInput').click(); }
+    function triggerExcelUpload() { document.getElementById('excelFileInput').click(); }
+
+    function importExcelFile(input) {
+      const file = input.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const data = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+          let extractedNumbers = [];
+          workbook.SheetNames.forEach(sheetName => {
+            const worksheet = workbook.Sheets[sheetName];
+            const sheetJson = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+            sheetJson.forEach(row => {
+              row.forEach(cell => {
+                if (cell !== null && cell !== undefined) {
+                  const strVal = String(cell);
+                  const matches = strVal.match(/(?:\+?91[\s-]?)?[6-9]\d{4}[\s-]?\d{5}|\b[6-9]\d{9}\b/g);
+                  if (matches) {
+                    matches.forEach(m => {
+                      let clean = m.replace(/[^0-9]/g, '');
+                      if (clean.length > 10) clean = clean.slice(-10);
+                      if (clean.length === 10) extractedNumbers.push(clean);
+                    });
+                  }
+                }
+              });
+            });
+          });
+          const uniqueExcelNums = [...new Set(extractedNumbers)];
+          if (uniqueExcelNums.length > 0) {
+            let addedCount = 0;
+            uniqueExcelNums.forEach(num => {
+              if (!numbers.includes(num)) { numbers.push(num); addedCount++; }
+            });
+            renderList();
+            showToast(`📊 ${addedCount} Excel Numbers Added!`);
+          } else {
+            alert('Excel file me koi valid 10-digit mobile number nahi mila!');
+          }
+        } catch (err) { alert('Excel file read karne me dikkat aayi.'); }
+      };
+      reader.readAsArrayBuffer(file);
+      input.value = '';
+    }
+
+    let ocrWorker = null;
+    async function getOcrWorker() {
+      if (!ocrWorker) {
+        ocrWorker = await Tesseract.createWorker('eng');
+        await ocrWorker.setParameters({ tessedit_char_whitelist: '0123456789+- ' });
+      }
+      return ocrWorker;
+    }
+
+    async function processMultipleImages(input) {
+      if (!input.files || input.files.length === 0) return;
+      const files = Array.from(input.files).slice(0, 20);
+      const imgEl = document.getElementById('capturedImg');
+      const loader = document.getElementById('ocrLoader');
+      const statusText = document.getElementById('ocrStatusText');
+      const placeholder = document.getElementById('placeholderText');
+
+      loader.style.display = 'flex';
+      placeholder.style.display = 'none';
+      let allScannedNumbers = [];
+
+      try {
+        const worker = await getOcrWorker();
+        for (let i = 0; i < files.length; i++) {
+          statusText.innerText = `Fast Scanning ${i + 1} of ${files.length}...`;
+          try {
+            const dataUrl = await readFileAsDataURL(files[i]);
+            imgEl.src = dataUrl;
+            imgEl.style.display = 'block';
+            const result = await worker.recognize(dataUrl);
+            const text = result.data.text;
+            const rawMatches = text ? text.match(/(?:\+?91[\s-]?)?[6-9]\d{4}[\s-]?\d{5}|\b[6-9]\d{9}\b/g) : null;
+            if (rawMatches) {
+              rawMatches.forEach(num => {
+                let clean = num.replace(/[^0-9]/g, '');
+                if (clean.length > 10) clean = clean.slice(-10);
+                if (clean.length === 10) allScannedNumbers.push(clean);
+              });
+            }
+          } catch (err) { console.error(err); }
+        }
+      } catch (e) { console.error(e); }
+
+      loader.style.display = 'none';
+      const uniqueNumbers = [...new Set(allScannedNumbers)];
+      if (uniqueNumbers.length > 0) {
+        const bulkTextarea = document.getElementById('bulkInput');
+        bulkTextarea.value += (bulkTextarea.value ? '\n' : '') + uniqueNumbers.join('\n');
+        showToast(`⚡ ${uniqueNumbers.length} Number(s) Scanned! 📸`);
+        addBulkNumbers();
+        closeAiCamera();
+      } else {
+        alert('Screenshots me koi valid number nahi mila.');
+        closeAiCamera();
+      }
+      input.value = '';
+    }
+
+    function readFileAsDataURL(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = e => resolve(e.target.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function copyAngelLink() { copyToClipboard("https://angel-one.onelink.me/Wjgr/uqx28rex", "Angel One Link Copied! 📋"); }
+    function copyNaviLink() { copyToClipboard("https://r.navi.com/gnnxyC", "Navi Link Copied! 📱"); }
+
+    function copyToClipboard(text, message) {
+      navigator.clipboard.writeText(text).then(() => { showToast(message); }).catch(() => {
+        const textArea = document.createElement("textarea");
+        textArea.value = text;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textArea);
+        showToast(message);
+      });
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toastText').innerText = msg;
+      toast.style.display = 'block';
+      setTimeout(() => { toast.style.display = 'none'; }, 2000);
+    }
+
+    let numbers = JSON.parse(localStorage.getItem('user_numbers_list')) || [];
+    let calledNumbers = JSON.parse(localStorage.getItem('called_numbers_list')) || [];
+    let leadStatuses = JSON.parse(localStorage.getItem('lead_statuses_list')) || {};
+    let callHistory = JSON.parse(localStorage.getItem('call_history_logs')) || [];
+    let savedMsg = localStorage.getItem('user_wa_msg') || '';
+    let waQueue = [], waQueueIndex = 0;
+
+    let callTimerInterval = null;
+    let callSecondsCount = 0;
+    let currentCallingIndex = null;
+
+    let audioCtxInstance = null;
+    let ringInterval = null;
+
+    function unlockAudioContext() {
+      if (!audioCtxInstance) {
+        audioCtxInstance = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtxInstance.state === 'suspended') {
+        audioCtxInstance.resume();
+      }
+    }
+
+    function playLoudRingingBell() {
+      try {
+        if (!audioCtxInstance) {
+          audioCtxInstance = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioCtxInstance.state === 'suspended') {
+          audioCtxInstance.resume();
+        }
+
+        playLoudBeep(audioCtxInstance, 900, 0, 0.2, 1.0);
+        playLoudBeep(audioCtxInstance, 1300, 0.25, 0.2, 1.0);
+        playLoudBeep(audioCtxInstance, 900, 0.5, 0.2, 1.0);
+        playLoudBeep(audioCtxInstance, 1300, 0.75, 0.2, 1.0);
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    function playLoudBeep(ctx, freq, delay, duration, volume) {
+      setTimeout(() => {
+        try {
+          let osc = ctx.createOscillator();
+          let gain = ctx.createGain();
+          osc.type = 'square';
+          osc.frequency.value = freq;
+          
+          gain.gain.setValueAtTime(volume, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + duration);
+          
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start();
+          osc.stop(ctx.currentTime + duration);
+        } catch (err) {}
+      }, delay * 1000);
+    }
+
+    function startRingingAlarm(number, timeText) {
+      const modal = document.getElementById('alarmModal');
+      if (modal.style.display === 'flex') return;
+
+      document.getElementById('alarmCustomerInfo').innerText = `Customer (${number}) ko call ka time ho gaya hai!\nDetails: ${timeText}`;
+      document.getElementById('alarmNumText').innerText = number;
+      const cleanNum = number.replace(/[^0-9]/g, '');
+      document.getElementById('alarmCallBtn').href = 'tel:+91' + cleanNum;
+      
+      modal.style.display = 'flex';
+      history.pushState({ modal: 'alarm' }, "", "");
+
+      playLoudRingingBell();
+      if (ringInterval) clearInterval(ringInterval);
+      ringInterval = setInterval(() => {
+        playLoudRingingBell();
+      }, 1200);
+    }
+
+    function dismissAlarm() {
+      document.getElementById('alarmModal').style.display = 'none';
+      if (ringInterval) {
+        clearInterval(ringInterval);
+        ringInterval = null;
+      }
+    }
+
+    setInterval(() => {
+      const now = new Date();
+      let hours = now.getHours();
+      let minutes = now.getMinutes();
+      let hours12 = hours % 12;
+      hours12 = hours12 ? hours12 : 12; 
+      let minStr = minutes < 10 ? '0' + minutes : minutes;
+
+      let currentTime12 = hours12 + ":" + minStr;
+      let currentTime24 = (hours < 10 ? '0' + hours : hours) + ":" + minStr;
+      let dotFormat = hours12 + "." + minStr;
+
+      Object.keys(leadStatuses).forEach(num => {
+        let item = leadStatuses[num];
+        if (item && item.status === 'time' && item.timeVal) {
+          let tVal = item.timeVal.toLowerCase().trim();
+          
+          if (tVal.includes(currentTime12) || 
+              tVal.includes(currentTime24) || 
+              tVal.includes(dotFormat) ||
+              tVal.startsWith(hours12 + ":" + minStr) ||
+              tVal.startsWith(hours12 + "." + minStr)) {
+            startRingingAlarm(num, item.timeVal);
+          }
+        }
+      });
+    }, 5000);
+
+    document.getElementById('defaultMsg').value = savedMsg;
+    document.getElementById('defaultMsg').addEventListener('input', function() {
+      localStorage.setItem('user_wa_msg', this.value);
+      renderList();
+    });
+
+    function saveState() {
+      localStorage.setItem('user_numbers_list', JSON.stringify(numbers));
+      localStorage.setItem('called_numbers_list', JSON.stringify(calledNumbers));
+      localStorage.setItem('lead_statuses_list', JSON.stringify(leadStatuses));
+      localStorage.setItem('call_history_logs', JSON.stringify(callHistory));
+      updateStatsAndCategorizedLists();
+      renderClientTable();
+    }
+
+    function formatDuration(seconds) {
+      if (!seconds || seconds <= 0) return '00s';
+      let mins = Math.floor(seconds / 60);
+      let secs = seconds % 60;
+      return mins > 0 ? `${mins}m ${secs < 10 ? '0' : ''}${secs}s` : `${secs}s`;
+    }
+
+    function stopCallTimer() {
+      if (callTimerInterval) { clearInterval(callTimerInterval); callTimerInterval = null; }
+      if (currentCallingIndex !== null && callHistory[currentCallingIndex]) {
+        callHistory[currentCallingIndex].duration = formatDuration(callSecondsCount);
+        callHistory[currentCallingIndex].durationSec = callSecondsCount;
+        saveState();
+      }
+      currentCallingIndex = null;
+      callSecondsCount = 0;
+      document.getElementById('liveCallTimer').innerText = '00:00';
+    }
+
+    function startCallTimer(num) {
+      stopCallTimer();
+      callSecondsCount = 0;
+      document.getElementById('liveCallTimer').innerText = '00:00';
+      const now = new Date();
+      callHistory.unshift({
+        number: num,
+        time: now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true }),
+        date: now.toLocaleDateString(),
+        duration: 'Running...',
+        durationSec: 0
+      });
+      currentCallingIndex = 0;
+      callTimerInterval = setInterval(() => {
+        callSecondsCount++;
+        let m = Math.floor(callSecondsCount / 60);
+        let s = callSecondsCount % 60;
+        document.getElementById('liveCallTimer').innerText = (m < 10 ? '0' + m : m) + ':' + (s < 10 ? '0' + s : s);
+      }, 1000);
+    }
+
+    function renderList() {
+      const container = document.getElementById('numberList');
+      container.innerHTML = '';
+      const encodedMsg = encodeURIComponent(document.getElementById('defaultMsg').value);
+
+      numbers.forEach((num, index) => {
+        if (leadStatuses[num] && leadStatuses[num].status) return;
+        const isCalled = calledNumbers.includes(num);
+        const cleanNum = num.replace(/[^0-9]/g, '');
+
+        const cardBox = document.createElement('div');
+        cardBox.className = 'num-card-box';
+
+        const actionRow = document.createElement('div');
+        actionRow.className = 'action-row';
+
+        const callBtn = document.createElement('a');
+        callBtn.className = 'num-card' + (isCalled ? ' called' : '');
+        callBtn.innerText = '📞 ' + num;
+        callBtn.href = 'tel:+91' + cleanNum;
+        callBtn.onclick = function() {
+          if (!calledNumbers.includes(num)) calledNumbers.push(num);
+          startCallTimer(num);
+          document.getElementById('topSliderBar').classList.add('live-calling');
+          document.getElementById('sliderIcon').innerHTML = '<i class="fas fa-volume-up" style="color: #22c55e;"></i>';
+          document.getElementById('activeCallNum').innerText = num;
+          saveState();
+          renderList();
+        };
+
+        const waBtn = document.createElement('a');
+        waBtn.className = 'wa-btn';
+        waBtn.innerText = '💬 WA';
+        waBtn.href = 'https://api.whatsapp.com/send?phone=91' + cleanNum + '&text=' + encodedMsg;
+        waBtn.target = '_blank';
+
+        const delBtn = document.createElement('button');
+        delBtn.className = 'delete-single-btn';
+        delBtn.innerText = '🗑';
+        delBtn.onclick = function() { removeSingleNumber(index); };
+
+        actionRow.appendChild(callBtn);
+        actionRow.appendChild(waBtn);
+        actionRow.appendChild(delBtn);
+
+        const statusRow = document.createElement('div');
+        statusRow.className = 'status-buttons-row';
+
+        const intBtn = document.createElement('button');
+        intBtn.className = 'sub-btn interested';
+        intBtn.innerText = '👍 Interested';
+        intBtn.disabled = !isCalled;
+        intBtn.onclick = function() { setStatus(num, 'interested'); };
+
+        const notIntBtn = document.createElement('button');
+        notIntBtn.className = 'sub-btn not-interested';
+        notIntBtn.innerText = '👎 Not Interested';
+        notIntBtn.disabled = !isCalled;
+        notIntBtn.onclick = function() { setStatus(num, 'not_interested'); };
+
+        const timeBtn = document.createElement('button');
+        timeBtn.className = 'sub-btn time';
+        timeBtn.innerText = '⏰ Time';
+        timeBtn.disabled = !isCalled;
+        timeBtn.onclick = function() {
+          let timeVal = prompt('Time ya Notes daalein (Jaise: 12.28 p call kar na h):');
+          if (timeVal !== null) setStatus(num, 'time', timeVal);
+        };
+
+        statusRow.appendChild(intBtn);
+        statusRow.appendChild(notIntBtn);
+        statusRow.appendChild(timeBtn);
+
+        cardBox.appendChild(actionRow);
+        cardBox.appendChild(statusRow);
+        container.appendChild(cardBox);
+      });
+      saveState();
+    }
+
+    function getFilteredClients() {
+      const filterCategory = document.getElementById('clientFilterCategory').value;
+      const searchQuery = document.getElementById('clientSearchInput').value.toLowerCase().trim();
+      let results = [];
+
+      numbers.forEach(num => {
+        const item = leadStatuses[num];
+        if (item && item.status) {
+          let cat = item.status;
+          let details = cat === 'time' ? (item.timeVal || 'Timing set') : (cat === 'interested' ? 'Interested' : 'Not Interested');
+          
+          if (filterCategory !== 'all' && filterCategory !== cat) return;
+          if (searchQuery && !num.toLowerCase().includes(searchQuery) && !details.toLowerCase().includes(searchQuery)) return;
+
+          results.push({ number: num, category: cat, details: details });
+        }
+      });
+      return results;
+    }
+
+    function renderClientTable() {
+      const tbody = document.getElementById('clientTableBody');
+      const filtered = getFilteredClients();
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #64748b; padding: 20px;">No matching records found.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = '';
+      filtered.forEach((client, idx) => {
+        let badgeHtml = '';
+        if (client.category === 'interested') badgeHtml = '<span class="badge-int">👍 Interested</span>';
+        else if (client.category === 'not_interested') badgeHtml = '<span class="badge-not">👎 Not Interested</span>';
+        else if (client.category === 'time') badgeHtml = '<span class="badge-time">⏰ Timing</span>';
+
+        const cleanNum = client.number.replace(/[^0-9]/g, '');
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${idx + 1}</td>
+          <td>
+            <a href="tel:+91${cleanNum}" class="client-call-link" onclick="handleClientCallClick('${client.number}')">
+              <i class="fas fa-phone-alt client-shake-phone"></i> ${client.number}
+            </a>
+          </td>
+          <td>${badgeHtml}</td>
+          <td>${client.details}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function handleClientCallClick(num) {
+      if (!calledNumbers.includes(num)) calledNumbers.push(num);
+      startCallTimer(num);
+      document.getElementById('topSliderBar').classList.add('live-calling');
+      document.getElementById('sliderIcon').innerHTML = '<i class="fas fa-volume-up" style="color: #22c55e;"></i>';
+      document.getElementById('activeCallNum').innerText = num;
+      saveState();
+    }
+
+    function copyFilteredClients() {
+      const filtered = getFilteredClients();
+      if (filtered.length === 0) return alert('Copy karne ke liye koi data available nahi hai!');
+      let textToCopy = "Phone Number\tCategory\tTiming / Details\n";
+      filtered.forEach(c => {
+        let catText = c.category === 'interested' ? 'Interested' : (c.category === 'not_interested' ? 'Not Interested' : 'Timing');
+        textToCopy += `${c.number}\t${catText}\t${c.details}\n`;
+      });
+      copyToClipboard(textToCopy, "Filtered Client Data Copied! 📋");
+    }
+
+    function downloadClientExcel() {
+      const filtered = getFilteredClients();
+      if (filtered.length === 0) return alert('Download karne ke liye koi data available nahi hai!');
+      
+      let wsData = [["Phone Number", "Category", "Timing / Details"]];
+      filtered.forEach(c => {
+        let catText = c.category === 'interested' ? 'Interested' : (c.category === 'not_interested' ? 'Not Interested' : 'Timing');
+        wsData.push([c.number, catText, c.details]);
+      });
+
+      const wb = XLSX.utils.book_new();
+      const worksheet = XLSX.utils.aoa_to_sheet(wsData);
+      XLSX.utils.book_append_sheet(wb, worksheet, "Client Leads");
+      XLSX.writeFile(wb, "Client_Leads_Report.xlsx");
+      showToast("Excel File Downloaded! 📊");
+    }
+
+    function renderCallHistory() {
+      const historyContainer = document.getElementById('callHistoryList');
+      document.getElementById('historyCount').innerText = callHistory.length;
+      if (callHistory.length === 0) {
+        historyContainer.innerHTML = '<div style="text-align: center; color: #94a3b8; padding: 20px; font-size: 12px;">Koi call record nahi hai.</div>';
+        return;
+      }
+      historyContainer.innerHTML = '';
+      callHistory.forEach((item) => {
+        const div = document.createElement('div');
+        div.className = 'call-history-item';
+        div.innerHTML = `<div><div class="history-num">📞 ${item.number}</div><div class="history-time">🗓️ ${item.date} | ⏰ ${item.time}</div></div><div class="history-duration">⏱️ ${item.duration || '00s'}</div>`;
+        historyContainer.appendChild(div);
+      });
+    }
+
+    function copyCallHistoryExcel() {
+      if (callHistory.length === 0) return alert('Copy karne ke liye koi call history nahi hai!');
+      let excelData = "Phone Number\tDate\tTime\tDuration\n";
+      callHistory.forEach(item => { excelData += `${item.number}\t${item.date}\t${item.time}\t${item.duration || '00s'}\n`; });
+      copyToClipboard(excelData, "Call History Copied for Excel! 📋");
+    }
+
+    function clearCallHistory() {
+      if (confirm('Kya aap poori Call History delete karna chahte hain?')) {
+        callHistory = []; stopCallTimer(); saveState(); renderCallHistory();
+      }
+    }
+
+    function setStatus(num, status, timeVal = '') {
+      if (!calledNumbers.includes(num)) return alert('Pehle call karein!');
+      stopCallTimer();
+      leadStatuses[num] = { status: status, timeVal: timeVal };
+      document.getElementById('topSliderBar').classList.remove('live-calling');
+      document.getElementById('sliderIcon').innerHTML = '<i class="fas fa-desktop"></i>';
+      renderList();
+    }
+
+    function updateStatsAndCategorizedLists() {
+      let intList = [], notIntList = [], timeList = [];
+      numbers.forEach(num => {
+        const item = leadStatuses[num];
+        if (item && item.status) {
+          if (item.status === 'interested') intList.push(num);
+          else if (item.status === 'not_interested') notIntList.push(num);
+          else if (item.status === 'time') timeList.push(num + (item.timeVal ? ' (' + item.timeVal + ')' : ''));
+        }
+      });
+      document.getElementById('pendingCount').innerText = numbers.length - (intList.length + notIntList.length + timeList.length);
+      document.getElementById('totalCount').innerText = numbers.length;
+      document.getElementById('calledCount').innerText = calledNumbers.filter(n => numbers.includes(n)).length;
+      document.getElementById('countInt').innerText = intList.length;
+      document.getElementById('listInt').innerText = intList.join('\n') || 'Koi nahi';
+      document.getElementById('countNotInt').innerText = notIntList.length;
+      document.getElementById('listNotInt').innerText = notIntList.join('\n') || 'Koi nahi';
+      document.getElementById('countTime').innerText = timeList.length;
+      document.getElementById('listTime').innerText = timeList.join('\n') || 'Koi nahi';
+    }
+
+    function addBulkNumbers() {
+      const val = document.getElementById('bulkInput').value.trim();
+      if (!val) return alert('Pehle numbers paste karein!');
+      const matches = val.match(/(?:\+?91[\s-]?)?[6-9]\d{4}[\s-]?\d{5}|\b[6-9]\d{9}\b/g);
+      if (!matches) return alert('Koi valid 10-digit number nahi mila!');
+      let added = 0;
+      matches.forEach(m => {
+        let digits = m.replace(/[^0-9]/g, '');
+        if (digits.length > 10) digits = digits.slice(-10);
+        if (digits.length === 10 && !numbers.includes(digits)) { numbers.push(digits); added++; }
+      });
+      document.getElementById('bulkInput').value = '';
+      renderList();
+      alert(added + ' naye numbers add ho gaye!');
+    }
+
+    function removeSingleNumber(index) {
+      delete leadStatuses[numbers[index]];
+      numbers.splice(index, 1);
+      renderList();
+    }
+
+    function clearAllNumbers() {
+      if (confirm('Clear confirm?')) {
+        numbers = []; calledNumbers = []; leadStatuses = {}; waQueue = []; waQueueIndex = 0;
+        stopCallTimer();
+        document.getElementById('topSliderBar').classList.remove('live-calling');
+        document.getElementById('sliderIcon').innerHTML = '<i class="fas fa-desktop"></i>';
+        updateWaQueueUI();
+        renderList();
+      }
+    }
+
+    function resetCalledStatus() { calledNumbers = []; renderList(); }
+    function copyText(id) {
+      const txt = document.getElementById(id).innerText;
+      if (txt === 'Koi nahi') return alert('Copy karne ke liye koi data nahi hai!');
+      navigator.clipboard.writeText(txt);
+      alert('List copy ho gayi!');
+    }
+
+    function handleWaQueueClick() {
+      if (numbers.length === 0) return alert('Pehle numbers list me add karein!');
+      if (waQueue.length === 0 || waQueueIndex >= waQueue.length) {
+        let unhandled = numbers.filter(n => !(leadStatuses[n] && leadStatuses[n].status));
+        waQueue = unhandled.slice(0, 10);
+        waQueueIndex = 0;
+        if (waQueue.length === 0) return alert('Batch finish ho gaya!');
+      }
+      const currentNum = waQueue[waQueueIndex];
+      const cleanNum = currentNum.replace(/[^0-9]/g, '');
+      const msgText = encodeURIComponent(document.getElementById('defaultMsg').value);
+      window.open('https://api.whatsapp.com/send?phone=91' + cleanNum + '&text=' + msgText, '_blank');
+      waQueueIndex++;
+      updateWaQueueUI();
+    }
+
+    function updateWaQueueUI() {
+      const progressEl = document.getElementById('queueProgress');
+      const btnEl = document.getElementById('startWaBtn');
+      if (waQueue.length > 0 && waQueueIndex < waQueue.length) {
+        progressEl.innerText = waQueueIndex + '/' + waQueue.length;
+        btnEl.innerText = '📲 Next WA (' + (waQueueIndex + 1) + ' / 10)';
+      } else {
+        progressEl.innerText = '0/0';
+        btnEl.innerText = '🚀 Start 10-WA Queue';
+      }
+    }
+
+    // Initialize History Stack state on page load
+    history.replaceState({ tab: 'tab-home' }, "", "");
+    renderList();
+  </script>
+</body>
+</html>
