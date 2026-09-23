@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Typing Skill Test</title>
+<style>
+  *{box-sizing:border-box}
+  :root{
+    --bg:#05070b;
+    --card:#0d1118;
+    --card2:#111722;
+    --line:#202938;
+    --text:#f4f7fb;
+    --muted:#8e9aac;
+    --accent:#5ee7ff;
+    --accent2:#8b7cff;
+    --danger:#ff5573;
+    --success:#39e58c;
+  }
+  body{
+    margin:0;
+    min-height:100vh;
+    background:
+      radial-gradient(circle at 20% 10%,rgba(94,231,255,.08),transparent 30%),
+      radial-gradient(circle at 85% 20%,rgba(139,124,255,.09),transparent 32%),
+      var(--bg);
+    color:var(--text);
+    font-family:Inter,Segoe UI,Arial,sans-serif;
+    overflow-x:hidden;
+  }
+  .wrap{width:min(1180px,94%);margin:auto;padding:26px 0 50px}
+  .top{
+    display:flex;justify-content:space-between;align-items:center;
+    margin-bottom:20px;gap:15px
+  }
+  .brand{font-size:21px;font-weight:800;letter-spacing:.4px}
+  .brand span{color:var(--accent)}
+  .pill{
+    border:1px solid var(--line);background:rgba(255,255,255,.03);
+    padding:9px 14px;border-radius:30px;color:var(--muted);font-size:13px
+  }
+  .card{
+    background:linear-gradient(180deg,rgba(17,23,34,.97),rgba(10,14,21,.98));
+    border:1px solid var(--line);border-radius:24px;
+    box-shadow:0 25px 80px rgba(0,0,0,.38);
+  }
+  .intro{padding:28px;margin-bottom:18px}
+  h1{margin:0 0 8px;font-size:clamp(28px,4vw,43px)}
+  .intro p{margin:0;color:var(--muted);line-height:1.6}
+  .stats{
+    display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:22px
+  }
+  .test-stats{display:none}
+  .test-stats.reveal{display:grid}
+  .stat{padding:15px;border:1px solid var(--line);border-radius:15px;background:#0a0e15}
+  .stat b{display:block;font-size:22px;margin-top:4px}
+  .stat small{color:var(--muted)}
+  .test{overflow:hidden}
+  .rain{
+    position:relative;height:285px;overflow:hidden;
+    background:
+      linear-gradient(180deg,rgba(94,231,255,.035),transparent),
+      #070b11;
+    border-bottom:1px solid var(--line);
+  }
+  .rain::after{
+    content:"";position:absolute;left:0;right:0;bottom:0;height:90px;
+    background:linear-gradient(transparent,rgba(5,7,11,.98));
+    pointer-events:none
+  }
+  .rain-title{
+    position:absolute;z-index:3;top:18px;left:22px;color:#667286;
+    font-size:11px;letter-spacing:2px;text-transform:uppercase
+  }
+  .bubble{
+    position:absolute;top:-55px;
+    padding:10px 16px;border-radius:999px;
+    border:1px solid rgba(94,231,255,.28);
+    background:rgba(16,28,39,.88);
+    color:#dcecff;font-size:14px;font-weight:650;
+    box-shadow:0 8px 30px rgba(0,0,0,.25),inset 0 0 18px rgba(94,231,255,.05);
+    animation:fall linear forwards;
+    will-change:transform,opacity;
+    white-space:nowrap;
+  }
+  .bubble::before{
+    content:"";position:absolute;inset:2px;border-radius:inherit;
+    border:1px solid rgba(255,255,255,.025);pointer-events:none
+  }
+  @keyframes fall{
+    0%{transform:translate3d(0,-70px,0) rotate(-2deg);opacity:0}
+    10%{opacity:1}
+    45%{transform:translate3d(12px,150px,0) rotate(1deg);opacity:.95}
+    75%{transform:translate3d(-10px,270px,0) rotate(-1deg);opacity:.72}
+    100%{transform:translate3d(8px,355px,0) rotate(2deg);opacity:.12}
+  }
+  .typing-area{padding:24px}
+  .instruction{
+    display:flex;justify-content:space-between;gap:15px;align-items:center;
+    margin-bottom:13px;color:var(--muted);font-size:13px
+  }
+  .target{
+    min-height:70px;padding:20px;border:1px solid var(--line);
+    border-radius:17px;background:#080c12;text-align:center;
+    display:flex;align-items:center;justify-content:center;
+    font-size:26px;font-weight:750;letter-spacing:.3px
+  }
+  .target span{color:var(--accent)}
+  .input{
+    width:100%;margin-top:13px;padding:18px 20px;
+    background:#080c12;border:1px solid #293344;border-radius:16px;
+    color:#fff;font-size:20px;outline:none;transition:.2s;
+  }
+  .input:focus{border-color:rgba(94,231,255,.7);box-shadow:0 0 0 3px rgba(94,231,255,.08)}
+  .input:disabled{opacity:.55}
+  .actions{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:15px}
+  button{
+    border:0;border-radius:13px;padding:13px 19px;font-weight:750;
+    cursor:pointer;color:#041016;background:var(--accent)
+  }
+  .fullscreen-btn{
+    padding:9px 14px;
+    border:1px solid #293344;
+    background:#111722;
+    color:#dce4ef;
+    font-size:12px;
+    white-space:nowrap;
+  }
+  .fullscreen-btn:hover{
+    background:#182130;
+    border-color:#3b485d;
+  }
+  button.secondary{background:#171e2b;color:#dce4ef;border:1px solid var(--line)}
+  button:disabled{opacity:.45;cursor:not-allowed}
+  .progress{height:7px;background:#171d27;border-radius:99px;overflow:hidden;margin-top:18px}
+  .bar{height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:.2s}
+  .result{display:none;padding:28px}
+  .result.show{display:block}
+  .result-head{display:flex;justify-content:space-between;gap:20px;align-items:flex-start}
+  .status{
+    display:inline-flex;padding:8px 14px;border-radius:99px;font-size:12px;
+    font-weight:850;letter-spacing:1px
+  }
+  .failed{color:#ff9aae;background:rgba(255,85,115,.1);border:1px solid rgba(255,85,115,.25)}
+  .passed{color:#83f0b7;background:rgba(57,229,140,.1);border:1px solid rgba(57,229,140,.25)}
+  .result h2{font-size:32px;margin:10px 0 7px}
+  .result p{color:var(--muted);line-height:1.6}
+  .timer{
+    min-width:170px;text-align:center;padding:17px;border:1px solid var(--line);
+    border-radius:16px;background:#080c12
+  }
+  .timer small{display:block;color:var(--muted);margin-bottom:5px}
+  .timer strong{font-size:27px;font-variant-numeric:tabular-nums}
+  .mistakes{margin-top:24px;border:1px solid var(--line);border-radius:17px;overflow:hidden}
+  .mistakes-title{padding:15px 17px;background:#0a0e15;font-weight:750}
+  table{width:100%;border-collapse:collapse}
+  th,td{padding:13px 15px;text-align:left;border-top:1px solid var(--line);font-size:13px}
+  th{color:#8e9aac;font-weight:650;background:#080c12}
+  td.wrong{color:#ff8196}
+  .empty{padding:22px;color:var(--success);text-align:center}
+  .footer-note{text-align:center;color:#5f6b7d;font-size:12px;margin-top:18px}
+  @media(max-width:700px){
+    .wrap{width:94%;padding-top:15px}
+    .stats{grid-template-columns:repeat(2,1fr)}
+    .rain{height:245px}
+    .target{font-size:20px}
+    .result-head{flex-direction:column}
+    .timer{width:100%}
+    .actions{flex-direction:column;align-items:stretch}
+    button{width:100%}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div class="brand">Typing Test <span>Madhu</span></div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="pill">400 Words • 375 Required</div>
+      <button class="fullscreen-btn" id="fullscreenBtn" type="button">⛶ Full Screen</button>
+    </div>
+  </div>
+
+  <section class="card intro">
+    <h1>Professional Typing Skill Test</h1>
+    <p>Type each word exactly as shown. Your result is calculated only after all 400 words are completed. A minimum of <b>375 correct words</b> is required to pass.</p>
+    <div class="stats test-stats" id="liveStats">
+      <div class="stat"><small>Total Words</small><b id="totalStat">400</b></div>
+      <div class="stat"><small>Required Correct</small><b>375</b></div>
+      <div class="stat"><small>Completed</small><b id="doneStat">0</b></div>
+      <div class="stat"><small>Correct</small><b id="correctStat">0</b></div>
+    </div>
+  </section>
+
+  <section class="card test" id="testCard">
+    <div class="rain" id="rain">
+      <div class="rain-title">WORD RAIN • TYPE THE ACTIVE WORD</div>
+    </div>
+    <div class="typing-area">
+      <div class="instruction">
+        <span>Type the word below and press <b>Space / Enter</b>.</span>
+        <span id="counter">1 / 400</span>
+      </div>
+      <div class="target">Type: <span id="targetWord">&nbsp;</span></div>
+      <input id="typingInput" class="input" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Start typing here..." disabled>
+      <div class="progress"><div class="bar" id="bar"></div></div>
+      <div class="actions">
+        <span style="color:#738094;font-size:12px">Your mistakes are hidden until the test ends.</span>
+        <button id="startBtn">Start Test</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="card result" id="result">
+    <div class="result-head">
+      <div>
+        <span id="status" class="status failed">FAILED</span>
+        <h2 id="resultTitle">Typing Test Completed</h2>
+        <p id="resultMessage"></p>
+      </div>
+      <div class="timer">
+        <small>10-Minute Timer</small>
+        <strong id="timer">10:00</strong>
+      </div>
+    </div>
+
+    <div class="stats" style="margin-top:22px">
+      <div class="stat"><small>Total Words</small><b id="rTotal">400</b></div>
+      <div class="stat"><small>Correct</small><b id="rCorrect">0</b></div>
+      <div class="stat"><small>Wrong</small><b id="rWrong">0</b></div>
+      <div class="stat"><small>Result</small><b id="rResult">FAILED</b></div>
+    </div>
+
+    <div class="mistakes">
+      <div class="mistakes-title">Mistakes — one row per wrong word</div>
+      <table>
+        <thead><tr><th>#</th><th>Correct Word</th><th>Your Word</th></tr></thead>
+        <tbody id="mistakeBody"></tbody>
+      </table>
+      <div id="noMistakes" class="empty" style="display:none">No typing mistakes recorded.</div>
+    </div>
+
+    <div style="margin-top:20px;text-align:center">
+      <button class="secondary" onclick="location.reload()">Restart Test</button>
+    </div>
+    <div class="footer-note">For the job workflow, use the result screen as the candidate's final typing-test status.</div>
+  </section>
+</div>
+
+<script>
+const wordsText = `
+the and for are but not you all any can had her was one our out day get has him his how man new now old see two way who boy did its let put say she too use about after again against before below between both during each few from further here into more most other over same some such than that their there these they this those through under until very when where which while with would could should people place great small every never always another around world work first last right still being every system company service office computer typing test skill speed accuracy practice professional career interview candidate result quality development communication language project team manager customer business information technology data important complete learn improve focus keyboard screen word sentence correct mistake time minute task answer question response experience ability knowledge training performance attention method process simple clear fast slow strong ready start finish submit record score target required success failure status level daily practice exercise document email report message input output design website application software browser mobile desktop user client employee employer job role position opportunity future present current today tomorrow morning evening better best change create build write read listen speak think solve problem idea plan support system network secure online digital voice learn growth progress goal work home school college training typing office skill words accuracy practice`;
+
+let baseWords = wordsText.trim().split(/\s+/);
+const extra = ["the","and","for","with","that","this","from","your","have","will","into","more","work","time","test","typing","practice","skill","correct","answer"];
+let words = [];
+while(words.length < 400) words.push(baseWords[words.length % baseWords.length]);
+words = words.slice(0,400);
+
+const rain = document.getElementById("rain");
+const input = document.getElementById("typingInput");
+const target = document.getElementById("targetWord");
+const startBtn = document.getElementById("startBtn");
+const bar = document.getElementById("bar");
+const counter = document.getElementById("counter");
+const doneStat = document.getElementById("doneStat");
+const correctStat = document.getElementById("correctStat");
+const testCard = document.getElementById("testCard");
+const result = document.getElementById("result");
+const mistakeBody = document.getElementById("mistakeBody");
+const noMistakes = document.getElementById("noMistakes");
+
+let index=0, correct=0, mistakes=[], running=false, rainTimer=null;
+
+function makeBubble(word, delay=0){
+  const b=document.createElement("div");
+  b.className="bubble";
+  b.textContent=word;
+  b.style.left=(Math.random()*88+3)+"%";
+  b.style.animationDuration=(5.0+Math.random()*2.5)+"s";
+  b.style.animationDelay=delay+"s";
+  b.addEventListener("animationend",()=>b.remove());
+  rain.appendChild(b);
+}
+function rainWords(){
+  if(!running) return;
+  makeBubble(words[(index+Math.floor(Math.random()*7))%words.length]);
+  rainTimer=setTimeout(rainWords,900);
+}
+function updateUI(){
+  target.textContent=words[index] || "";
+  counter.textContent=Math.min(index+1,400)+" / 400";
+  doneStat.textContent=index;
+  correctStat.textContent=correct;
+  bar.style.width=(index/400*100)+"%";
+}
+function start(){
+  if(running)return;
+  running=true; index=0; correct=0; mistakes=[];
+  startBtn.disabled=true;
+  input.disabled=false;
+  input.focus();
+  updateUI();
+  rainWords();
+}
+function finish(){
+  running=false;
+  clearTimeout(rainTimer);
+  input.disabled=true;
+  bar.style.width="100%";
+  doneStat.textContent=400;
+  correctStat.textContent=correct;
+  testCard.style.display="none";
+  document.getElementById("liveStats").classList.add("reveal");
+  result.classList.add("show");
+
+  const passed=correct>=375;
+  const status=document.getElementById("status");
+  status.textContent=passed?"PASSED":"FAILED";
+  status.className="status "+(passed?"passed":"failed");
+  document.getElementById("rTotal").textContent=400;
+  document.getElementById("rCorrect").textContent=correct;
+  document.getElementById("rWrong").textContent=mistakes.length;
+  document.getElementById("rResult").textContent=passed?"PASSED":"FAILED";
+  document.getElementById("resultTitle").textContent=passed?"Typing Test Passed":"Typing Test Failed";
+  document.getElementById("resultMessage").textContent=passed
+    ? "You achieved the required 375 correct words. Your typing test is complete."
+    : "You did not reach 375 correct words. Try after 1 month for this job and keep practicing.";
+
+  mistakeBody.innerHTML="";
+  mistakes.forEach((m,i)=>{
+    const tr=document.createElement("tr");
+    tr.innerHTML=`<td>${i+1}</td><td>${escapeHtml(m.correct)}</td><td class="wrong">${escapeHtml(m.typed)}</td>`;
+    mistakeBody.appendChild(tr);
+  });
+  noMistakes.style.display=mistakes.length?"none":"block";
+  startTenMinuteTimer();
+}
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
+}
+
+input.addEventListener("keydown",e=>{
+  if(!running)return;
+  if(e.key===" " || e.key==="Enter"){
+    e.preventDefault();
+    const typed=input.value.trim();
+    if(!typed) return;
+    const expected=words[index];
+    if(typed===expected) correct++;
+    else mistakes.push({correct:expected,typed});
+    index++;
+    input.value="";
+    updateUI();
+    if(index>=400) finish();
+  }
+});
+startBtn.addEventListener("click",start);
+
+let timerInterval;
+function startTenMinuteTimer(){
+  clearInterval(timerInterval);
+  let seconds=600;
+  const el=document.getElementById("timer");
+  const tick=()=>{
+    const m=String(Math.floor(seconds/60)).padStart(2,"0");
+    const s=String(seconds%60).padStart(2,"0");
+    el.textContent=m+":"+s;
+    if(seconds<=0) clearInterval(timerInterval);
+    seconds--;
+  };
+  tick();
+  timerInterval=setInterval(tick,1000);
+}
+
+
+const fullscreenBtn = document.getElementById("fullscreenBtn");
+
+fullscreenBtn.addEventListener("click", async () => {
+  try {
+    if (!document.fullscreenElement) {
+      await document.documentElement.requestFullscreen();
+      fullscreenBtn.textContent = "⛶ Exit Full Screen";
+    } else {
+      await document.exitFullscreen();
+      fullscreenBtn.textContent = "⛶ Full Screen";
+    }
+  } catch (err) {
+    console.log("Fullscreen not available:", err);
+  }
+});
+
+document.addEventListener("fullscreenchange", () => {
+  fullscreenBtn.textContent = document.fullscreenElement
+    ? "⛶ Exit Full Screen"
+    : "⛶ Full Screen";
+});
+
+// Decorative word rain before starting
+for(let i=0;i<8;i++) makeBubble(words[i], -(Math.random()*7));
+</script>
+</body>
+</html>
