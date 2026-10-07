@@ -1,0 +1,1269 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Auto Dialer & Lead Manager with Admin Control</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  
+  <!-- Firebase Compatibility Libraries -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    body { font-family: system-ui, -apple-system, sans-serif; background-color: #0f172a; color: #f8fafc; padding: 10px; padding-bottom: 90px; }
+    
+    /* Splash Screen */
+    #splashScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #0f172a, #1e293b, #0f172a); z-index: 999999; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; transition: opacity 0.5s ease; }
+    .splash-card { background: rgba(30, 41, 59, 0.7); border: 2px solid #22c55e; border-radius: 24px; padding: 35px 25px; width: 100%; max-width: 360px; box-shadow: 0 0 40px rgba(34, 197, 94, 0.4); display: flex; flex-direction: column; align-items: center; gap: 15px; backdrop-filter: blur(10px); animation: splashPulse 1.5s infinite alternate; }
+    @keyframes splashPulse { 0% { transform: scale(1); box-shadow: 0 0 25px rgba(34, 197, 94, 0.3); } 100% { transform: scale(1.03); box-shadow: 0 0 50px rgba(34, 197, 94, 0.6); } }
+    .splash-logo-circle { width: 80px; height: 80px; background: linear-gradient(135deg, #22c55e, #15803d); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 36px; box-shadow: 0 6px 20px rgba(34, 197, 94, 0.6); animation: bounceLogo 1s infinite alternate; }
+    @keyframes bounceLogo { 0% { transform: translateY(0); } 100% { transform: translateY(-6px); } }
+
+    .splash-btn-group { display: flex; flex-direction: column; gap: 10px; width: 100%; margin-top: 10px; }
+    .splash-btn { width: 100%; padding: 12px; border-radius: 12px; font-weight: bold; border: none; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .splash-btn-user { background: #22c55e; color: #0f172a; }
+    .splash-btn-admin { background: #38bdf8; color: #0f172a; }
+
+    /* Top Bar Styling */
+    .top-slider { height: 75px; background: rgba(34, 197, 94, 0.12); border: 2px solid #22c55e; border-radius: 14px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; padding: 0 10px; overflow: hidden; box-shadow: 0 0 22px rgba(34, 197, 94, 0.35), inset 0 0 12px rgba(34, 197, 94, 0.2); transition: all 0.3s ease; position: relative; }
+    .calling-man-icon { font-size: 24px; margin-right: 6px; flex-shrink: 0; color: #38bdf8; display: flex; align-items: center; }
+    .computer-wave-flow { display: flex; align-items: center; gap: 3px; margin-right: 6px; }
+    .computer-wave-flow span { display: block; width: 3px; background-color: #38bdf8; border-radius: 2px; animation: flowWave 1s infinite ease-in-out; }
+    .computer-wave-flow span:nth-child(1) { animation-delay: 0.1s; height: 6px; }
+    .computer-wave-flow span:nth-child(2) { animation-delay: 0.3s; height: 12px; }
+    .computer-wave-flow span:nth-child(3) { animation-delay: 0.2s; height: 16px; }
+    .computer-wave-flow span:nth-child(4) { animation-delay: 0.4s; height: 10px; }
+    @keyframes flowWave { 0%, 100% { transform: scaleY(0.4); opacity: 0.4; } 50% { transform: scaleY(1); opacity: 1; filter: drop-shadow(0 0 5px #38bdf8); } }
+
+    .slider-track { flex: 1; overflow: hidden; display: flex; align-items: center; }
+    .slider-text { font-size: 14px; font-weight: bold; color: #22c55e; letter-spacing: 0.5px; text-shadow: 0 0 10px rgba(34, 197, 94, 0.5); }
+
+    .top-bar-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; margin-left: 6px; }
+    .shake-icon { font-size: 18px; color: #90EE38; display: inline-block; animation: shakeEffect 0.8s infinite ease-in-out; }
+    @keyframes shakeEffect { 0% { transform: rotate(0deg); } 20% { transform: rotate(-15deg); } 40% { transform: rotate(15deg); } 60% { transform: rotate(-10deg); } 80% { transform: rotate(10deg); } 100% { transform: rotate(0deg); } }
+
+    /* Menu & Modals */
+    .menu-round-btn { width: 38px; height: 38px; border-radius: 50%; background: linear-gradient(135deg, #1e293b, #0f172a); border: 1.5px solid #22c55e; color: #38bdf8; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 16px; box-shadow: 0 0 10px rgba(34, 197, 94, 0.3); transition: all 0.2s ease; }
+    .menu-modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(4px); z-index: 99999; justify-content: flex-end; }
+    .menu-drawer { width: 260px; height: 100%; background: #1e293b; border-left: 2px solid #38bdf8; padding: 20px 15px; display: flex; flex-direction: column; gap: 15px; box-shadow: -5px 0 25px rgba(0,0,0,0.5); }
+    .menu-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; padding-bottom: 10px; }
+    .menu-user-status { font-size: 12px; font-weight: bold; color: #38bdf8; display: flex; align-items: center; gap: 6px; }
+    .menu-btn { width: 100%; padding: 10px 14px; border-radius: 8px; border: none; font-weight: bold; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 10px; }
+    .menu-btn-login { background: #22c55e; color: #0f172a; }
+    .menu-btn-logout { background: #ef4444; color: #fff; }
+
+    .pin-modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.9); z-index: 1000000; align-items: center; justify-content: center; padding: 20px; }
+    .pin-card { background: #1e293b; border: 2px solid #38bdf8; border-radius: 16px; padding: 25px 20px; width: 100%; max-width: 320px; text-align: center; box-shadow: 0 0 30px rgba(56, 189, 248, 0.3); display: flex; flex-direction: column; gap: 15px; }
+    .pin-input { width: 100%; padding: 10px; font-size: 22px; letter-spacing: 8px; text-align: center; background: #0f172a; border: 2px solid #334155; color: #22c55e; border-radius: 8px; outline: none; }
+
+    /* DUTY OFF MODAL */
+    .dutyoff-modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(8px); z-index: 2000000; align-items: center; justify-content: center; padding: 20px; }
+    .dutyoff-card { background: linear-gradient(135deg, #1e293b, #0f172a); border: 2px solid #ef4444; border-radius: 20px; padding: 30px 20px; width: 100%; max-width: 340px; text-align: center; box-shadow: 0 0 40px rgba(239, 68, 68, 0.5); display: flex; flex-direction: column; align-items: center; gap: 12px; animation: popIn 0.3s ease-out; }
+    @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    .dutyoff-icon { width: 70px; height: 70px; background: rgba(239, 68, 68, 0.15); border: 2px solid #ef4444; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 30px; color: #ef4444; box-shadow: 0 0 20px rgba(239, 68, 68, 0.4); }
+
+    /* Layout & Utilities */
+    .summary-section { margin-bottom: 2px; display: flex; flex-direction: column; gap: 4px; }
+    .summary-grid { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 0px; margin-bottom: 0px; -webkit-overflow-scrolling: touch; }
+    .summary-box { background: #1e293b; padding: 8px; border-radius: 10px; border: 1px solid #334155; display: flex; flex-direction: column; justify-content: space-between; min-height: 90px; flex: 0 0 130px; width: 130px; }
+    .summary-box.int { border-top: 3px solid #22c55e; }
+    .summary-box.not-int { border-top: 3px solid #ef4444; }
+    .summary-box.time-box { border-top: 3px solid #eab308; }
+    .summary-box.not-pick-box { border-top: 3px solid #f97316; }
+    .summary-box.working-box { border-top: 3px solid #a855f7; }
+    .summary-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+    .summary-title { font-size: 10px; font-weight: bold; }
+    .copy-btn { background: #334155; color: #fff; border: none; padding: 2px 5px; border-radius: 4px; font-size: 9px; cursor: pointer; }
+    .summary-list { font-family: monospace; font-size: 10px; color: #cbd5e1; height: 55px; overflow-y: auto; white-space: pre-wrap; word-break: break-all; background: #0f172a; padding: 4px; border-radius: 6px; }
+
+    .partner-apps-bar { background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 6px 8px; margin-top: 4px; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; overflow: hidden; }
+    .static-group { display: flex; gap: 6px; flex-shrink: 0; border-right: 1px solid #475569; padding-right: 6px; }
+    .slider-group { flex: 1; overflow: hidden; white-space: nowrap; position: relative; display: flex; }
+    .partner-scroll { display: inline-flex; gap: 6px; animation: partnerScroll 12s linear infinite; }
+    @keyframes partnerScroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+    .app-chip { background: #0f172a; border: 1px solid #475569; padding: 4px 8px; border-radius: 20px; font-size: 9px; font-weight: bold; color: #38bdf8; display: inline-flex; align-items: center; gap: 3px; flex-shrink: 0; cursor: pointer; text-decoration: none; }
+    .app-chip.pinned { border-color: #38bdf8; background: #1e293b; color: #fbbf24; }
+
+    .inputs-row { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 8px; }
+    .add-box { background: #1e293b; padding: 6px 8px; border-radius: 10px; display: flex; flex-direction: column; gap: 3px; border: 1px solid #334155; }
+    textarea, input[type="text"], input[type="tel"], input[type="time"], input[type="number"], select { width: 100%; background: #0f172a; color: #fff; padding: 6px 8px; border: 1px solid #334155; border-radius: 6px; font-family: system-ui, sans-serif; font-size: 11px; outline: none; user-select: text; }
+    textarea { height: 36px; resize: none; font-family: monospace; }
+    textarea:focus, input:focus, select:focus { border-color: #38bdf8; }
+    
+    .btn-row { display: flex; gap: 3px; width: 100%; margin-top: 1px; }
+    .btn-danger, .btn-primary, .btn-excel { flex: 1; font-weight: bold; padding: 6px 4px; border: none; border-radius: 5px; cursor: pointer; font-size: 10px; display: inline-flex; align-items: center; justify-content: center; gap: 4px; }
+    .btn-danger { background: #ef4444; color: #fff; }
+    .btn-primary { background: #38bdf8; color: #0f172a; }
+    .btn-excel { background: #107c41; color: #fff; }
+
+    .wa-queue-bar { background: #14532d; border: 1px solid #22c55e; padding: 8px 10px; border-radius: 8px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+    .wa-queue-btn { background: #22c55e; color: #0f172a; font-weight: bold; border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 11px; }
+    .stats-bar { display: flex; justify-content: space-between; align-items: center; background: #1e293b; padding: 8px 10px; border-radius: 8px; margin-bottom: 8px; font-size: 12px; border: 1px solid #334155; }
+    .container { display: flex; flex-direction: column; gap: 8px; }
+    
+    .num-card-box { background: #1e293b; padding: 8px; border-radius: 10px; display: flex; flex-direction: column; gap: 6px; border: 1px solid #334155; }
+    .action-row { display: flex; gap: 6px; }
+    .num-card { flex: 1; display: flex; align-items: center; justify-content: center; padding: 8px; background: #22c55e; color: #fff; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 13px; }
+    .num-card.called { background: #ef4444 !important; }
+    .wa-btn { padding: 8px 12px; background: #25D366; color: #fff; text-decoration: none; border-radius: 6px; font-weight: bold; display: flex; align-items: center; justify-content: center; font-size: 12px; }
+    .delete-single-btn { background: #475569; color: #fff; border: none; padding: 8px 10px; border-radius: 6px; cursor: pointer; }
+    .status-buttons-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; }
+    .sub-btn { padding: 6px 2px; background: #0f172a; color: #94a3b8; border: 1px solid #334155; border-radius: 6px; cursor: pointer; font-size: 9px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: center; transition: all 0.2s; }
+    .sub-btn.disabled { opacity: 0.4; cursor: not-allowed; pointer-events: none; filter: grayscale(1); }
+    .sub-btn.interested { background: #0f172a; color: #22c55e; border-color: #22c55e; }
+    .sub-btn.not-interested { background: #0f172a; color: #ef4444; border-color: #ef4444; }
+    .sub-btn.time { background: #0f172a; color: #eab308; border-color: #eab308; }
+    .sub-btn.not-pick { background: #0f172a; color: #f97316; border-color: #f97316; }
+    .sub-btn.working { background: #0f172a; color: #a855f7; border-color: #a855f7; }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    .tab-view-box { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 12px; margin-top: 10px; }
+    .tab-title { font-size: 15px; font-weight: bold; color: #38bdf8; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #334155; padding-bottom: 8px; }
+
+    .client-filter-box { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; }
+    .client-action-buttons { display: flex; gap: 6px; margin-bottom: 10px; }
+    .client-table-container { max-height: 380px; overflow-y: auto; background: #0f172a; border: 1px solid #334155; border-radius: 8px; }
+    .client-table { width: 100%; border-collapse: collapse; font-size: 11px; text-align: left; }
+    .client-table th { background: #1e293b; color: #38bdf8; padding: 8px; border-bottom: 1px solid #334155; position: sticky; top: 0; }
+    .client-table td { padding: 8px; border-bottom: 1px solid #1e293b; font-family: monospace; color: #cbd5e1; }
+
+    .admin-container { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 4px; }
+    @media (max-width: 820px) { .admin-container { grid-template-columns: 1fr; } }
+    .admin-card { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 8px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); }
+    .admin-card.full-width { grid-column: 1 / -1; }
+    .admin-card-title { color: #38bdf8; font-size: 13px; font-weight: bold; border-bottom: 1px solid #334155; padding-bottom: 6px; display: flex; align-items: center; justify-content: space-between; }
+    .admin-form-group { display: flex; flex-direction: column; gap: 3px; }
+    .admin-form-group label { font-size: 10px; color: #94a3b8; font-weight: bold; }
+    .admin-grid-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+    .user-cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 10px; max-height: 280px; overflow-y: auto; padding-right: 4px; }
+    .user-card-item { background: #0f172a; border: 1px solid #38bdf8; border-radius: 9px; padding: 9px; display: flex; flex-direction: column; justify-content: space-between; gap: 6px; }
+
+    .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; height: 60px; background-color: #1e293b; border-top: 1px solid #334155; display: flex; justify-content: space-around; align-items: center; z-index: 1000; padding: 0 5px; }
+    .nav-item { background: none; border: none; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #94a3b8; font-size: 10px; cursor: pointer; outline: none; flex: 1; }
+    .nav-item i { font-size: 16px; margin-bottom: 3px; }
+    .nav-item.active { color: #38bdf8; font-weight: bold; }
+
+    .camera-center-btn { background: linear-gradient(135deg, #38bdf8, #0284c7); color: #fff; width: 52px; height: 52px; border-radius: 50%; border: 3px solid #0f172a; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(56, 189, 248, 0.5); margin-top: -22px; cursor: pointer; }
+    .camera-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.95); z-index: 99999; flex-direction: column; align-items: center; justify-content: center; padding: 12px; }
+    .camera-box { width: 96%; max-width: 460px; background: #1e293b; border: 1px solid #38bdf8; border-radius: 12px; padding: 12px; text-align: center; }
+    .camera-preview { width: 100%; height: 280px; background: #0f172a; border: 2px dashed #38bdf8; border-radius: 8px; margin: 10px 0; display: flex; align-items: center; justify-content: center; position: relative; }
+    .ocr-loader { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.92); color: #38bdf8; font-weight: bold; font-size: 13px; flex-direction: column; align-items: center; justify-content: center; gap: 10px; }
+
+    #toast { position: fixed; bottom: 75px; left: 50%; transform: translateX(-50%); background: #22c55e; color: #0f172a; padding: 8px 16px; border-radius: 20px; font-weight: bold; font-size: 12px; z-index: 100000; display: none; }
+  </style>
+</head>
+<body>
+
+  <!-- Splash Screen -->
+  <div id="splashScreen">
+    <div class="splash-card">
+      <div class="splash-logo-circle"><i class="fas fa-headset"></i></div>
+      <div>
+        <h2 style="font-size: 20px; color: #22c55e; font-weight: bold;">Auto Dialer & Lead Manager</h2>
+        <p style="font-size: 11px; color: #94a3b8;">Smart Calling & Admin Portal</p>
+      </div>
+      <div class="splash-btn-group">
+        <button class="splash-btn splash-btn-user" onclick="triggerUserLoginModal()"><i class="fas fa-user"></i> User Login</button>
+        <button class="splash-btn splash-btn-admin" onclick="triggerAdminLoginModal()"><i class="fas fa-user-shield"></i> Admin Login</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DUTY OFF MODAL -->
+  <div class="dutyoff-modal-overlay" id="dutyOffModalOverlay">
+    <div class="dutyoff-card">
+      <div class="dutyoff-icon"><i class="fas fa-user-clock"></i></div>
+      <h3 style="color:#ef4444; font-size:18px; font-weight:bold;">Aap Duty Off Hain!</h3>
+      <p style="color:#cbd5e1; font-size:12px; line-height:1.5;">Kripya apne Admin se sampark karein. Admin dwara shift activate karne ke baad hi aap login kar sakte hain.</p>
+      <button class="btn-primary" style="background:#ef4444; color:#fff; width:100%; padding:10px; border-radius:10px; margin-top:5px; font-weight:bold;" onclick="closeDutyOffModal()">OK, Samajh Gaya</button>
+    </div>
+  </div>
+
+  <!-- Top Header Bar -->
+  <div class="top-slider" id="topSliderBar">
+    <div style="display: flex; align-items: center; flex: 1; overflow: hidden;">
+      <div class="calling-man-icon" id="sliderIcon"><i class="fas fa-desktop"></i></div>
+      <div class="computer-wave-flow"><span></span><span></span><span></span><span></span></div>
+      <div class="slider-track"><div class="slider-text" id="headerAppTitle">Smart Dialer</div></div>
+    </div>
+    <div class="top-bar-right">
+      <div class="shake-icon"><i class="fas fa-phone-alt"></i></div>
+      <button class="menu-round-btn" onclick="openMenuModal()"><i class="fas fa-bars"></i></button>
+    </div>
+  </div>
+
+  <!-- Menu Overlay -->
+  <div class="menu-modal-overlay" id="menuModalOverlay" onclick="closeMenuModal(event)">
+    <div class="menu-drawer">
+      <div class="menu-header">
+        <span style="font-weight: bold; color: #f8fafc;"><i class="fas fa-cog"></i> Menu</span>
+        <button onclick="closeMenuModalDirect()" style="background:none; border:none; color:#ef4444; font-size:18px;">✖</button>
+      </div>
+      <div class="menu-user-status"><i class="fas fa-user-circle"></i><span id="userStatusText">Logged Out</span></div>
+      <div style="display: flex; flex-direction: column; gap: 10px;">
+        <button class="menu-btn menu-btn-login" id="loginBtn" onclick="triggerUserLoginModal()"><i class="fas fa-sign-in-alt"></i> User Login</button>
+        <button class="menu-btn menu-btn-login" style="background:#38bdf8;" onclick="triggerAdminLoginModal()"><i class="fas fa-user-shield"></i> Admin Login</button>
+        <button class="menu-btn menu-btn-logout" id="logoutBtn" onclick="handleLogout()" style="display: none;"><i class="fas fa-sign-out-alt"></i> Logout</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PIN Modal -->
+  <div class="pin-modal-overlay" id="pinModalOverlay">
+    <div class="pin-card">
+      <div style="color: #38bdf8; font-weight: bold;" id="pinModalTitle">Enter 4-Digit PIN</div>
+      <input type="password" id="pinInput" class="pin-input" maxlength="4" placeholder="••••" pattern="\d*" inputmode="numeric">
+      <div style="display: flex; gap: 8px;">
+        <button class="btn-primary" style="background:#ef4444; color:#fff;" onclick="closePinModal()">Cancel</button>
+        <button class="btn-primary" style="background:#22c55e; color:#0f172a;" onclick="verifyPin()">Submit PIN</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast"><span id="toastText">Done!</span></div>
+
+  <!-- TAB: HOME -->
+  <div id="tab-home" class="tab-content active">
+    <div class="summary-section">
+      <div style="font-size: 12px; font-weight: bold; color: #38bdf8; margin-left: 2px;">📊 Categorized Lists</div>
+      <div class="summary-grid">
+        <div class="summary-box int"><div class="summary-header"><span class="summary-title" style="color:#22c55e;">👍 Int (<span id="countInt">0</span>)</span><button class="copy-btn" onclick="copyCategoryList('interested')">📋</button></div><div class="summary-list" id="listInt">Koi nahi</div></div>
+        <div class="summary-box not-int"><div class="summary-header"><span class="summary-title" style="color:#ef4444;">👎 Not (<span id="countNotInt">0</span>)</span><button class="copy-btn" onclick="copyCategoryList('not_interested')">📋</button></div><div class="summary-list" id="listNotInt">Koi nahi</div></div>
+        <div class="summary-box time-box"><div class="summary-header"><span class="summary-title" style="color:#eab308;">⏰ Time (<span id="countTime">0</span>)</span><button class="copy-btn" onclick="copyCategoryList('time')">📋</button></div><div class="summary-list" id="listTime">Koi nahi</div></div>
+        <div class="summary-box not-pick-box"><div class="summary-header"><span class="summary-title" style="color:#f97316;">📞 Not Pick (<span id="countNotPick">0</span>)</span><button class="copy-btn" onclick="copyCategoryList('call_not_pick')">📋</button></div><div class="summary-list" id="listNotPick">Koi nahi</div></div>
+        <div class="summary-box working-box"><div class="summary-header"><span class="summary-title" style="color:#a855f7;">💼 Working (<span id="countWorking">0</span>)</span><button class="copy-btn" onclick="copyCategoryList('working')">📋</button></div><div class="summary-list" id="listWorking">Koi nahi</div></div>
+      </div>
+    </div>
+
+    <div class="partner-apps-bar">
+      <div class="static-group">
+        <a class="app-chip pinned" onclick="showToast('Angel One Link Copied!')">📊 Angel One</a>
+        <span class="app-chip pinned" onclick="showToast('Upstox Selected')">📈 Upstox</span>
+        <a class="app-chip pinned" onclick="showToast('Navi Link Copied!')">📱 Navi</a>
+      </div>
+      <div class="slider-group">
+        <div class="partner-scroll">
+          <span class="app-chip">🏦 AU Bank</span><span class="app-chip">📉 5paisa</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="inputs-row">
+      <div class="add-box">
+        <label style="font-size: 10px; color: #25D366; font-weight: bold;">💬 WA Message:</label>
+        <textarea id="defaultMsg" placeholder="Message yahan likhein...">Hello, testing message from Dialer System.</textarea>
+      </div>
+      <div class="add-box">
+        <label style="font-size: 10px; color: #38bdf8; font-weight: bold;">➕ Add Numbers:</label>
+        <textarea id="bulkInput" placeholder="Numbers paste karein..."></textarea>
+        <div class="btn-row">
+          <button class="btn-danger" onclick="clearAllNumbers()">🗑 Clear</button>
+          <button class="btn-primary" onclick="addBulkNumbers()">+ Add</button>
+          <input type="file" id="excelFileInput" accept=".xlsx, .xls, .csv" style="display:none;" onchange="importExcelFile(this)">
+          <button class="btn-excel" onclick="triggerExcelUpload()"><i class="fas fa-file-excel"></i> Excel</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="wa-queue-bar">
+      <div style="font-size:11px; font-weight:bold; color:#f8fafc;">💬 Send WA to Top 10 (<span id="queueProgress">0/0</span>)</div>
+      <button class="wa-queue-btn" id="startWaBtn" onclick="startWaQueue()">🚀 Start 10-WA Queue</button>
+    </div>
+
+    <div class="stats-bar">
+      <div>Pending: <span id="pendingCount" style="color:#38bdf8;">0</span> | Total: <span id="totalCount">0</span> | Called: <span id="calledCount" style="color:#ef4444;">0</span></div>
+      <button style="background:none; border:none; color:#38bdf8; font-size:11px; cursor:pointer;" onclick="resetCalledStatus()">Reset Calls</button>
+    </div>
+
+    <div class="container" id="numberList"></div>
+  </div>
+
+  <!-- TAB: CLIENTS DATABASE -->
+  <div id="tab-clients" class="tab-content">
+    <div class="tab-view-box">
+      <div class="tab-title"><span><i class="fas fa-user-friends"></i> Client Database</span></div>
+      
+      <div class="client-filter-box">
+        <select id="clientFilterCategory" onchange="renderClientTable()">
+          <option value="all">🔍 All Categories (Interested / Not / Timing / Not Pick / Working)</option>
+          <option value="interested">👍 Interested Only</option>
+          <option value="not_interested">👎 Not Interested Only</option>
+          <option value="time">⏰ Timing / Notes Only</option>
+          <option value="call_not_pick">📞 Call Not Pick Only</option>
+          <option value="working">💼 Working Only</option>
+        </select>
+        <input type="text" id="clientSearchInput" placeholder="🔍 Search number or timing..." oninput="renderClientTable()">
+      </div>
+
+      <div class="client-action-buttons">
+        <button class="btn-primary" onclick="copyFilteredClients()"><i class="fas fa-copy"></i> Copy Filtered Data</button>
+        <button class="btn-excel" onclick="downloadClientExcel()"><i class="fas fa-file-excel"></i> Download Excel</button>
+      </div>
+
+      <div class="client-table-container">
+        <table class="client-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Phone Number</th>
+              <th>Category</th>
+              <th>Timing / Details</th>
+            </tr>
+          </thead>
+          <tbody id="clientTableBody">
+            <tr><td colspan="4" style="text-align: center; color: #64748b; padding: 20px;">No client records found.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: CALL HISTORY -->
+  <div id="tab-mycalls" class="tab-content">
+    <div class="tab-view-box">
+      <div class="tab-title">
+        <span><i class="fas fa-phone-alt"></i> Call History (<span id="historyCount">0</span>)</span>
+        <div style="display:flex; gap:6px;">
+          <button class="copy-btn" style="background:#22c55e; color:#0f172a; font-weight:bold; padding:4px 8px; font-size:11px;" onclick="copyCallHistoryExcel()">📋 Copy All</button>
+          <button class="copy-btn" style="background:#ef4444; color:#fff; font-weight:bold; padding:4px 8px; font-size:11px;" onclick="clearCallHistory()">🗑 Clear</button>
+        </div>
+      </div>
+      <div id="callHistoryList"></div>
+    </div>
+  </div>
+
+  <!-- TAB: SUPPORT -->
+  <div id="tab-support" class="tab-content">
+    <div class="tab-view-box">
+      <div class="tab-title"><span><i class="fas fa-headset"></i> Support & Helpdesk</span></div>
+      <p style="text-align:center; padding:20px; color:#cbd5e1;">Contact Support par baat karein: <b>8920226993</b></p>
+    </div>
+  </div>
+
+  <!-- TAB: ADMIN BACKEND PANEL -->
+  <div id="tab-admin" class="tab-content">
+    <div class="tab-view-box" style="margin-top:0; padding:10px;">
+      <div class="tab-title" style="margin-bottom:8px; padding-bottom:4px;">
+        <span><i class="fas fa-user-shield"></i> Admin Control Center</span>
+        <span style="font-size:10px; color:#22c55e;">● Live Dashboard</span>
+      </div>
+
+      <div class="admin-container">
+        
+        <div class="admin-card">
+          <div class="admin-card-title">
+            <span><i class="fas fa-user-plus"></i> Onboard Agent</span>
+          </div>
+          <div class="admin-grid-2col">
+            <div class="admin-form-group">
+              <label>Agent Name</label>
+              <input type="text" id="adminAgentName" placeholder="e.g. Tannu">
+            </div>
+            <div class="admin-form-group">
+              <label>Mobile Number</label>
+              <input type="tel" id="adminAgentMobile" maxlength="10" placeholder="10-digit number">
+            </div>
+          </div>
+          <div class="admin-form-group">
+            <label>Assign 4-Digit Login PIN</label>
+            <input type="text" id="adminAgentPin" maxlength="4" placeholder="e.g. 1234">
+          </div>
+          <button class="btn-primary" style="background:#22c55e; color:#0f172a; font-weight:bold; padding:7px;" onclick="adminSaveUser()">+ Add / Update Agent</button>
+        </div>
+
+        <div class="admin-card">
+          <div class="admin-card-title">
+            <span><i class="fas fa-clock"></i> Shift & Break Controls</span>
+          </div>
+          <div class="admin-form-group">
+            <label>Select Target Agent</label>
+            <select id="adminShiftUserSelect"></select>
+          </div>
+          <div class="admin-grid-2col">
+            <div class="admin-form-group">
+              <label>⏰ Shift Start Time</label>
+              <input type="time" id="adminShiftStart" value="09:00">
+            </div>
+            <div class="admin-form-group">
+              <label>⏰ Shift End Time</label>
+              <input type="time" id="adminShiftEnd" value="18:00">
+            </div>
+          </div>
+          <div class="admin-grid-2col">
+            <div class="admin-form-group">
+              <label>Break Status</label>
+              <select id="adminBreakStatus">
+                <option value="Working">Working</option>
+                <option value="Tea Break">Tea Break</option>
+                <option value="Lunch Break">Lunch Break</option>
+                <option value="Off Duty">Off Duty</option>
+              </select>
+            </div>
+            <div class="admin-form-group">
+              <label>⏱ Break Start Time</label>
+              <input type="time" id="adminBreakTime" value="13:00">
+            </div>
+          </div>
+          <div class="admin-form-group">
+            <label>⏳ Break Duration (Minutes)</label>
+            <input type="number" id="adminBreakDuration" placeholder="e.g. 30" value="30">
+          </div>
+          <button class="btn-primary" style="padding:7px;" onclick="adminSaveShift()">Update Shift Info</button>
+        </div>
+
+        <div class="admin-card">
+          <div class="admin-card-title">
+            <span><i class="fas fa-share-square"></i> Assign Leads to Agent</span>
+          </div>
+          <div class="admin-grid-2col">
+            <div class="admin-form-group">
+              <label>Select Agent</label>
+              <select id="adminDataUserSelect"></select>
+            </div>
+            <div class="admin-form-group">
+              <label>Paste Phone Numbers</label>
+              <textarea id="adminLeadsInput" style="height:32px;" placeholder="Paste numbers..."></textarea>
+            </div>
+          </div>
+          <div style="display:flex; gap:6px;">
+            <button class="btn-excel" style="padding:7px; font-weight:bold; flex:1;" onclick="adminPushLeads()">🚀 Push Data</button>
+            <button class="btn-danger" style="padding:7px; font-weight:bold; flex:1;" onclick="adminClearAgentData()">🗑 Delete All Data</button>
+          </div>
+        </div>
+
+        <div class="admin-card">
+          <div class="admin-card-title">
+            <span><i class="fas fa-chart-pie"></i> Performance Analytics</span>
+          </div>
+          <div id="adminAnalyticsBox" style="font-size:10.5px; color:#cbd5e1; max-height:85px; overflow-y:auto;">
+            Select agent card view button to check detailed activity.
+          </div>
+        </div>
+
+        <div class="admin-card full-width">
+          <div class="admin-card-title">
+            <span><i class="fas fa-users"></i> Active Onboarded Agents & Live Activity</span>
+          </div>
+          <div class="user-cards-grid" id="adminUserList"></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- CAMERA OCR MODAL -->
+  <div class="camera-modal" id="cameraModal">
+    <div class="camera-box">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <span style="font-size: 14px; font-weight:bold; color: #38bdf8;">⚡ Fast AI Multi-OCR Scanner</span>
+        <button onclick="closeAiCamera()" style="background:none; border:none; color:#ef4444; font-size:18px;">✖</button>
+      </div>
+      <div class="camera-preview">
+        <div id="placeholderText" style="color:#64748b; font-size:12px;">Screenshots select karke fast scan karein</div>
+        <div class="ocr-loader" id="ocrLoader">
+          <i class="fas fa-spinner fa-spin fa-2x"></i>
+          <span id="ocrStatusText">Fast Scanning...</span>
+        </div>
+      </div>
+      <input type="file" id="cameraDirectInput" accept="image/*" capture="environment" style="display:none;" onchange="processMultipleImages(this)">
+      <input type="file" id="galleryFileInput" accept="image/*" multiple style="display:none;" onchange="processMultipleImages(this)">
+      <div style="display:flex; gap:6px;">
+        <button class="btn-primary" onclick="triggerDirectCamera()">📸 Capture Photo</button>
+        <button class="btn-primary" style="background:#22c55e;" onclick="triggerGalleryUpload()">🖼️ Select Photos</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <nav class="bottom-nav">
+    <button class="nav-item active" id="nav-home" onclick="switchTab('tab-home', this)"><i class="fas fa-home"></i><span>Home</span></button>
+    <button class="nav-item" id="nav-clients" onclick="switchTab('tab-clients', this)"><i class="fas fa-user-friends"></i><span>Clients</span></button>
+    <button class="camera-center-btn" onclick="openAiCamera()"><i class="fas fa-camera"></i><span>CAM</span></button>
+    <button class="nav-item" id="nav-mycalls" onclick="switchTab('tab-mycalls', this)"><i class="fas fa-phone-alt"></i><span>Calls</span></button>
+    <button class="nav-item" id="nav-support" onclick="switchTab('tab-support', this)"><i class="fas fa-headset"></i><span>Support</span></button>
+    <button class="nav-item" id="nav-admin" style="display:none;" onclick="switchTab('tab-admin', this)"><i class="fas fa-user-shield"></i><span>Admin</span></button>
+  </nav>
+
+  <script>
+    // YOUR INTEGRATED FIREBASE CONFIGURATION
+    const firebaseConfig = {
+      apiKey: "AIzaSyDbg-yDrl1_FYXEDjLN9Ay0kWJ556Xvdeg",
+      authDomain: "smart-call-9950a.firebaseapp.com",
+      databaseURL: "https://smart-call-9950a-default-rtdb.firebaseio.com",
+      projectId: "smart-call-9950a",
+      storageBucket: "smart-call-9950a.firebasestorage.app",
+      messagingSenderId: "965909062156",
+      appId: "1:965909062156:web:60572b1b3409a7e5284429",
+      measurementId: "G-B19VDHLM39"
+    };
+
+    // Initialize Firebase
+    if (typeof firebase !== 'undefined' && !firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+
+    let numbersData = JSON.parse(localStorage.getItem('dialerNumbersData') || '[]');
+    let callHistory = JSON.parse(localStorage.getItem('dialerCallHistory') || '[]');
+    let currentAuthMode = 'USER';
+
+    function getUsersDB() {
+      const stored = localStorage.getItem('systemUsersDB');
+      return stored ? JSON.parse(stored) : {};
+    }
+
+    function saveUsersDB(dbData) { 
+      localStorage.setItem('systemUsersDB', JSON.stringify(dbData));
+      if (typeof firebase !== 'undefined' && firebase.apps.length) {
+        firebase.database().ref('systemUsersDB').set(dbData);
+      }
+    }
+
+    function getBlacklistedPins() {
+      const stored = localStorage.getItem('blacklistedPins');
+      return stored ? JSON.parse(stored) : [];
+    }
+
+    function saveBlacklistedPins(arr) { 
+      localStorage.setItem('blacklistedPins', JSON.stringify(arr));
+      if (typeof firebase !== 'undefined' && firebase.apps.length) {
+        firebase.database().ref('blacklistedPins').set(arr);
+      }
+    }
+
+    function getActiveUserPin() { return localStorage.getItem('activeUserPin') || ''; }
+
+    function getUserStats(user) {
+      const leads = Array.isArray(user.leads) ? user.leads : [];
+      const history = Array.isArray(user.callHistory) ? user.callHistory : [];
+      return {
+        total: leads.length,
+        pending: leads.filter(i => !i.category).length,
+        called: leads.filter(i => i.called).length,
+        interested: leads.filter(i => i.category === 'interested').length,
+        notInterested: leads.filter(i => i.category === 'not_interested').length,
+        time: leads.filter(i => i.category === 'time').length,
+        notPick: leads.filter(i => i.category === 'call_not_pick').length,
+        working: leads.filter(i => i.category === 'working').length,
+        callLogs: history.length
+      };
+    }
+
+    window.addEventListener('load', () => {
+      // Sync Realtime Database on load
+      if (typeof firebase !== 'undefined' && firebase.apps.length) {
+        firebase.database().ref('systemUsersDB').on('value', snapshot => {
+          const cloudDb = snapshot.val();
+          if (cloudDb) {
+            localStorage.setItem('systemUsersDB', JSON.stringify(cloudDb));
+            if (localStorage.getItem('userRole') === 'USER') {
+              const pin = getActiveUserPin();
+              if (pin && cloudDb[pin]) {
+                numbersData = Array.isArray(cloudDb[pin].leads) ? cloudDb[pin].leads : [];
+                callHistory = Array.isArray(cloudDb[pin].callHistory) ? cloudDb[pin].callHistory : [];
+                renderAll();
+              }
+            }
+            renderAdminUserLists();
+          }
+        });
+      }
+
+      if (localStorage.getItem('isLoggedIn') === 'true') {
+        if (localStorage.getItem('userRole') === 'USER') {
+          const pin = getActiveUserPin();
+          const db = getUsersDB();
+          if (pin && db[pin]) {
+            numbersData = Array.isArray(db[pin].leads) ? db[pin].leads : [];
+            callHistory = Array.isArray(db[pin].callHistory) ? db[pin].callHistory : [];
+          }
+        }
+        updateLoginUi();
+      } else {
+        document.getElementById('splashScreen').style.display = 'flex';
+      }
+      renderAdminUserLists();
+      renderAll();
+    });
+
+    function saveNumbersData() {
+      if (localStorage.getItem('userRole') === 'USER') {
+        const pin = getActiveUserPin();
+        const db = getUsersDB();
+        if (pin && db[pin]) { db[pin].leads = numbersData; saveUsersDB(db); }
+      } else {
+        localStorage.setItem('dialerNumbersData', JSON.stringify(numbersData));
+      }
+    }
+
+    function saveCallHistory() {
+      if (localStorage.getItem('userRole') === 'USER') {
+        const pin = getActiveUserPin();
+        const db = getUsersDB();
+        if (pin && db[pin]) { db[pin].callHistory = callHistory; saveUsersDB(db); }
+      } else {
+        localStorage.setItem('dialerCallHistory', JSON.stringify(callHistory));
+      }
+    }
+
+    function cleanPhoneNumber(phone) { return phone.replace(/[^\d+]/g, ''); }
+    function extractNumbersFromString(text) {
+      const regex = /(\+?\d{10,12})/g;
+      const matches = text.match(regex) || [];
+      return matches.map(n => cleanPhoneNumber(n)).filter(n => n.length >= 10);
+    }
+
+    function formatTime12Hr(timeStr) {
+      if (!timeStr) return '';
+      let [h, m] = timeStr.split(':');
+      let hh = parseInt(h, 10);
+      let ampm = hh >= 12 ? 'PM' : 'AM';
+      hh = hh % 12 || 12;
+      return `${hh.toString().padStart(2, '0')}:${m} ${ampm}`;
+    }
+
+    function showDutyOffModal() { document.getElementById('dutyOffModalOverlay').style.display = 'flex'; }
+    function closeDutyOffModal() { document.getElementById('dutyOffModalOverlay').style.display = 'none'; }
+
+    function renderAll() {
+      renderNumberList();
+      renderSummaryLists();
+      renderClientTable();
+      renderCallHistory();
+    }
+
+    function renderNumberList() {
+      const listContainer = document.getElementById('numberList');
+      if (!listContainer) return;
+      listContainer.innerHTML = '';
+
+      let total = numbersData.length;
+      let calledCount = numbersData.filter(i => i.called).length;
+      let unassignedList = numbersData.map((item, originalIndex) => ({ item, originalIndex })).filter(obj => !obj.item.category);
+      let pending = unassignedList.length;
+
+      unassignedList.forEach(({ item, originalIndex }) => {
+        const card = document.createElement('div');
+        card.className = 'num-card-box';
+        const defaultMsg = encodeURIComponent(document.getElementById('defaultMsg')?.value || 'Hello');
+        const isBtnDisabled = !item.called;
+
+        card.innerHTML = `
+          <div class="action-row">
+            <a href="tel:${item.number}" class="num-card ${item.called ? 'called' : ''}" onclick="markAsCalled(${originalIndex})">
+              📞 ${item.number} ${item.called ? '(Called)' : ''}
+            </a>
+            <a href="https://wa.me/${item.number.replace('+', '')}?text=${defaultMsg}" target="_blank" class="wa-btn">
+              <i class="fab fa-whatsapp"></i> WA
+            </a>
+            <button class="delete-single-btn" onclick="deleteSingleNumber(${originalIndex})">🗑</button>
+          </div>
+          <div class="status-buttons-row">
+            <button class="sub-btn ${item.category === 'interested' ? 'interested' : ''} ${isBtnDisabled ? 'disabled' : ''}" ${isBtnDisabled ? 'disabled' : ''} onclick="setCategory(${originalIndex}, 'interested')">👍 Int</button>
+            <button class="sub-btn ${item.category === 'not_interested' ? 'not-interested' : ''} ${isBtnDisabled ? 'disabled' : ''}" ${isBtnDisabled ? 'disabled' : ''} onclick="setCategory(${originalIndex}, 'not_interested')">👎 Not Int</button>
+            <button class="sub-btn ${item.category === 'time' ? 'time' : ''} ${isBtnDisabled ? 'disabled' : ''}" ${isBtnDisabled ? 'disabled' : ''} onclick="setCategory(${originalIndex}, 'time')">⏰ Time</button>
+            <button class="sub-btn ${item.category === 'call_not_pick' ? 'not-pick' : ''} ${isBtnDisabled ? 'disabled' : ''}" ${isBtnDisabled ? 'disabled' : ''} onclick="setCategory(${originalIndex}, 'call_not_pick')">📞 Not Pick</button>
+            <button class="sub-btn ${item.category === 'working' ? 'working' : ''} ${isBtnDisabled ? 'disabled' : ''}" ${isBtnDisabled ? 'disabled' : ''} onclick="setCategory(${originalIndex}, 'working')">💼 Working</button>
+          </div>
+        `;
+        listContainer.appendChild(card);
+      });
+
+      document.getElementById('pendingCount').innerText = pending;
+      document.getElementById('totalCount').innerText = total;
+      document.getElementById('calledCount').innerText = calledCount;
+      document.getElementById('queueProgress').innerText = `0/${Math.min(10, pending)}`;
+    }
+
+    function markAsCalled(index) {
+      if (numbersData[index]) {
+        numbersData[index].called = true;
+        callHistory.unshift({
+          number: numbersData[index].number,
+          time: new Date().toLocaleTimeString() + ' ' + new Date().toLocaleDateString()
+        });
+        saveNumbersData();
+        saveCallHistory();
+        renderAll();
+      }
+    }
+
+    function setCategory(index, category) {
+      if (numbersData[index] && numbersData[index].called) {
+        if (category === 'time') {
+          const note = prompt('Timing ya notes likhein (e.g. Call at 4 PM):');
+          if (note !== null) {
+            numbersData[index].note = note;
+            numbersData[index].category = category;
+            showToast('Categorized & Moved to Box! 📋');
+          } else { return; }
+        } else {
+          numbersData[index].category = category;
+          showToast('Categorized & Moved to Box! 📋');
+        }
+        saveNumbersData();
+        renderAll();
+      } else { alert('Pehle is number par Call click karein!'); }
+    }
+
+    function addBulkNumbers() {
+      const input = document.getElementById('bulkInput');
+      const text = input.value.trim();
+      if (!text) return;
+      const extracted = extractNumbersFromString(text);
+      let count = 0;
+      extracted.forEach(num => {
+        if (!numbersData.some(item => item.number === num)) {
+          numbersData.push({ number: num, called: false, category: '', note: '' });
+          count++;
+        }
+      });
+      saveNumbersData();
+      renderAll();
+      input.value = '';
+      showToast(`${count} Numbers Added!`);
+    }
+
+    function deleteSingleNumber(index) {
+      numbersData.splice(index, 1);
+      saveNumbersData();
+      renderAll();
+      showToast('Number Deleted!');
+    }
+
+    function clearAllNumbers() {
+      if (confirm('Saare numbers clear karein?')) {
+        numbersData = [];
+        saveNumbersData();
+        renderAll();
+        showToast('Sabhi numbers hta diye gaye!');
+      }
+    }
+
+    function resetCalledStatus() {
+      numbersData.forEach(item => {
+        item.called = false;
+        item.category = '';
+        item.note = '';
+      });
+      saveNumbersData();
+      renderAll();
+      showToast('Call Status & List Reset!');
+    }
+
+    function startWaQueue() {
+      const pending = numbersData.filter(i => !i.category).slice(0, 10);
+      if (pending.length === 0) { alert('Koi pending number nahi hai!'); return; }
+      const defaultMsg = encodeURIComponent(document.getElementById('defaultMsg')?.value || 'Hello');
+      let delay = 0;
+      pending.forEach((item, index) => {
+        setTimeout(() => {
+          window.open(`https://wa.me/${item.number.replace('+', '')}?text=${defaultMsg}`, '_blank');
+          document.getElementById('queueProgress').innerText = `${index + 1}/${pending.length}`;
+        }, delay);
+        delay += 2500;
+      });
+    }
+
+    function renderSummaryLists() {
+      const categories = ['interested', 'not_interested', 'time', 'call_not_pick', 'working'];
+      const mapIds = {
+        'interested': { count: 'countInt', list: 'listInt' },
+        'not_interested': { count: 'countNotInt', list: 'listNotInt' },
+        'time': { count: 'countTime', list: 'listTime' },
+        'call_not_pick': { count: 'countNotPick', list: 'listNotPick' },
+        'working': { count: 'countWorking', list: 'listWorking' }
+      };
+      categories.forEach(cat => {
+        const filtered = numbersData.filter(item => item.category === cat);
+        const target = mapIds[cat];
+        if (target) {
+          document.getElementById(target.count).innerText = filtered.length;
+          const textList = filtered.map(item => item.number + (item.note ? ` (${item.note})` : '')).join('\n');
+          document.getElementById(target.list).innerText = textList || 'Koi nahi';
+        }
+      });
+    }
+
+    function copyCategoryList(category) {
+      const filtered = numbersData.filter(item => item.category === category);
+      const text = filtered.map(item => item.number + (item.note ? ` (${item.note})` : '')).join('\n');
+      if (!text) { showToast('List Empty Hai!'); return; }
+      navigator.clipboard.writeText(text);
+      showToast('Copied! 📋');
+    }
+
+    function renderClientTable() {
+      const filterCat = document.getElementById('clientFilterCategory')?.value || 'all';
+      const searchText = (document.getElementById('clientSearchInput')?.value || '').toLowerCase();
+      const tbody = document.getElementById('clientTableBody');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+      let filtered = numbersData.filter(item => {
+        const matchCat = filterCat === 'all' ? (item.category && item.category !== '') : item.category === filterCat;
+        const matchSearch = item.number.toLowerCase().includes(searchText) || (item.note && item.note.toLowerCase().includes(searchText));
+        return matchCat && matchSearch;
+      });
+      if (filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #64748b; padding: 20px;">No client records found.</td></tr>';
+        return;
+      }
+      filtered.forEach((item, idx) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `<td>${idx + 1}</td><td>${item.number}</td><td style="text-transform: capitalize;">${item.category.replace('_', ' ')}</td><td>${item.note || '-'}</td>`;
+        tbody.appendChild(row);
+      });
+    }
+
+    function copyFilteredClients() {
+      const filterCat = document.getElementById('clientFilterCategory')?.value || 'all';
+      const searchText = (document.getElementById('clientSearchInput')?.value || '').toLowerCase();
+      let filtered = numbersData.filter(item => {
+        const matchCat = filterCat === 'all' ? (item.category && item.category !== '') : item.category === filterCat;
+        const matchSearch = item.number.toLowerCase().includes(searchText) || (item.note && item.note.toLowerCase().includes(searchText));
+        return matchCat && matchSearch;
+      });
+      const text = filtered.map((item, i) => `${i + 1}. ${item.number} | ${item.category} | ${item.note || '-'}`).join('\n');
+      if (!text) { showToast('Koi data nahi hai!'); return; }
+      navigator.clipboard.writeText(text);
+      showToast('Clients Data Copied!');
+    }
+
+    function downloadClientExcel() {
+      const ws = XLSX.utils.json_to_sheet(numbersData);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Clients");
+      XLSX.writeFile(wb, "Clients_Database.xlsx");
+    }
+
+    function triggerExcelUpload() { document.getElementById('excelFileInput').click(); }
+    function importExcelFile(input) {
+      const file = input.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+        const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+        const json = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+        let count = 0;
+        json.forEach(row => {
+          row.forEach(cell => {
+            if (cell) {
+              const nums = extractNumbersFromString(String(cell));
+              nums.forEach(num => {
+                if (!numbersData.some(item => item.number === num)) {
+                  numbersData.push({ number: num, called: false, category: '', note: '' });
+                  count++;
+                }
+              });
+            }
+          });
+        });
+        saveNumbersData();
+        renderAll();
+        showToast(`${count} Numbers Imported!`);
+        input.value = '';
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
+    function renderCallHistory() {
+      const container = document.getElementById('callHistoryList');
+      const countEl = document.getElementById('historyCount');
+      if (!container) return;
+      container.innerHTML = '';
+      if(countEl) countEl.innerText = callHistory.length;
+      if (callHistory.length === 0) {
+        container.innerHTML = '<div style="color:#64748b; font-size:12px; text-align:center; padding:15px;">Call History Empty.</div>';
+        return;
+      }
+      callHistory.forEach(item => {
+        container.innerHTML += `<div style="background:#0f172a; padding:8px; border-radius:6px; margin-bottom:6px; display:flex; justify-content:space-between; align-items:center; font-size:11px;"><span style="font-family:monospace; color:#22c55e;">📞 ${item.number}</span><span style="color:#94a3b8; font-size:10px;">${item.time}</span></div>`;
+      });
+    }
+
+    function clearCallHistory() {
+      if (confirm('Call History Delete karein?')) {
+        callHistory = [];
+        saveCallHistory();
+        renderCallHistory();
+        showToast('History Cleared!');
+      }
+    }
+
+    function copyCallHistoryExcel() {
+      const text = callHistory.map(item => `${item.number}\t${item.time}`).join('\n');
+      if (!text) { showToast('History Empty!'); return; }
+      navigator.clipboard.writeText(text);
+      showToast('History Copied!');
+    }
+
+    function triggerUserLoginModal() { currentAuthMode = 'USER'; openPinModal(); }
+    function triggerAdminLoginModal() { currentAuthMode = 'ADMIN'; openPinModal(); }
+    function openPinModal() { document.getElementById('pinInput').value = ''; document.getElementById('pinModalOverlay').style.display = 'flex'; }
+    function closePinModal() { document.getElementById('pinModalOverlay').style.display = 'none'; }
+    function openMenuModal() { document.getElementById('menuModalOverlay').style.display = 'flex'; }
+    function closeMenuModal(e) { if(e.target.id === 'menuModalOverlay') document.getElementById('menuModalOverlay').style.display = 'none'; }
+    function closeMenuModalDirect() { document.getElementById('menuModalOverlay').style.display = 'none'; }
+
+    function verifyPin() {
+      const pin = document.getElementById('pinInput').value.trim();
+      const db = getUsersDB();
+      const blacklisted = getBlacklistedPins();
+
+      if (currentAuthMode === 'ADMIN') {
+        if (pin === '9953') {
+          localStorage.setItem('isLoggedIn', 'true');
+          localStorage.setItem('userRole', 'ADMIN');
+          document.getElementById('splashScreen').style.display = 'none';
+          updateLoginUi();
+          closePinModal();
+          renderAdminUserLists();
+          switchTab('tab-admin', document.getElementById('nav-admin'));
+        } else { alert('Invalid Admin PIN!'); }
+      } else {
+        if (blacklisted.includes(pin)) {
+          alert('Yeh user account Admin dwara permanent delete ho chuka hai.');
+          return;
+        }
+
+        if (db[pin]) {
+          const user = db[pin];
+          if (user.break === 'Off Duty') {
+            closePinModal();
+            showDutyOffModal();
+            return;
+          }
+
+          user.lastLoginTime = new Date().toISOString();
+          saveUsersDB(db);
+
+          localStorage.setItem('isLoggedIn', 'true');
+          localStorage.setItem('userRole', 'USER');
+          localStorage.setItem('activeUserPin', pin);
+          numbersData = Array.isArray(user.leads) ? user.leads : [];
+          callHistory = Array.isArray(user.callHistory) ? user.callHistory : [];
+          document.getElementById('splashScreen').style.display = 'none';
+          updateLoginUi();
+          closePinModal();
+          renderAll();
+          switchTab('tab-home', document.getElementById('nav-home'));
+        } else { alert('Invalid PIN!'); }
+      }
+    }
+
+    function handleLogout() {
+      localStorage.clear();
+      document.getElementById('splashScreen').style.display = 'flex';
+      updateLoginUi();
+      closeMenuModalDirect();
+      switchTab('tab-home', document.getElementById('nav-home'));
+    }
+
+    function updateLoginUi() {
+      const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+      const role = localStorage.getItem('userRole');
+      const adminNav = document.getElementById('nav-admin');
+      if (isLoggedIn && role === 'ADMIN') {
+        if (adminNav) adminNav.style.display = 'flex';
+      } else {
+        if (adminNav) adminNav.style.display = 'none';
+      }
+    }
+
+    function renderAdminUserLists() {
+      const db = getUsersDB();
+      const container = document.getElementById('adminUserList');
+      const shiftSelect = document.getElementById('adminShiftUserSelect');
+      const dataSelect = document.getElementById('adminDataUserSelect');
+      if (!container) return;
+
+      container.innerHTML = '';
+      if(shiftSelect) shiftSelect.innerHTML = '';
+      if(dataSelect) dataSelect.innerHTML = '';
+
+      const keys = Object.keys(db);
+      if (keys.length === 0) {
+        container.innerHTML = '<span style="color:#64748b; font-size:11px;">Koi Agent added nahi hai.</span>';
+        return;
+      }
+
+      keys.forEach(pin => {
+        const u = db[pin];
+        const s = getUserStats(u);
+        const card = document.createElement('div');
+        card.className = 'user-card-item';
+        card.innerHTML = `
+          <div>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="font-weight:bold; color:#22c55e; font-size:12px;">${u.name} <span style="color:#94a3b8; font-size:10px;">(PIN: ${pin})</span></span>
+              <span style="color:#22c55e; font-size:10px; font-weight:bold;">${s.called} Calls</span>
+            </div>
+            <div style="color:#cbd5e1; font-size:10px; margin-top:2px;">📱 ${u.mobile || 'No Mobile'}</div>
+            <div style="color:#38bdf8; font-size:10px; margin-top:2px;">Shift: ${u.shift || '09:00 AM - 06:00 PM'} | Status: <b style="${u.break==='Off Duty'?'color:#ef4444':'color:#22c55e'}">${u.break || 'Working'}</b></div>
+          </div>
+          <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:4px; font-size:9px; text-align:center; margin-top:4px;">
+            <div style="background:#1e293b; padding:3px; border-radius:4px;"><b>${s.total}</b><br><span style="color:#94a3b8;">Data</span></div>
+            <div style="background:#1e293b; padding:3px; border-radius:4px;"><b>${s.pending}</b><br><span style="color:#94a3b8;">Pending</span></div>
+            <div style="background:#1e293b; padding:3px; border-radius:4px;"><b>${s.callLogs}</b><br><span style="color:#94a3b8;">Logs</span></div>
+            <div style="background:#1e293b; padding:3px; border-radius:4px;"><b>${s.interested}</b><br><span style="color:#22c55e;">Int.</span></div>
+          </div>
+          <div style="display:flex; gap:4px; margin-top:6px; flex-wrap:wrap;">
+            <button class="btn-excel" style="flex:1; padding:5px; font-size:10px;" onclick="prepareAdminData('${pin}')">📤 Send Data</button>
+            <button class="btn-primary" style="flex:1; padding:5px; font-size:10px;" onclick="viewAdminUser('${pin}')">👁 Activity</button>
+            <button class="copy-btn" style="background:#22c55e; color:#0f172a; font-weight:bold; padding:5px; font-size:10px;" onclick="adminCopyUserCallActivity('${pin}')">📋 Copy Calls</button>
+            <button style="background:#ef4444; color:#fff; border:none; padding:5px 8px; border-radius:5px; font-size:10px; cursor:pointer;" onclick="deleteAdminUser('${pin}')">🗑</button>
+          </div>
+        `;
+        container.appendChild(card);
+        if(shiftSelect) shiftSelect.innerHTML += `<option value="${pin}">${u.name}</option>`;
+        if(dataSelect) dataSelect.innerHTML += `<option value="${pin}">${u.name}</option>`;
+      });
+
+      renderAdminAnalytics();
+    }
+
+    function adminCopyUserCallActivity(pin) {
+      const db = getUsersDB();
+      const user = db[pin];
+      if (!user) return;
+      const history = user.callHistory || [];
+      const leads = user.leads || [];
+
+      if (history.length === 0 && leads.length === 0) {
+        showToast('Koi Call Activity nahi hai!');
+        return;
+      }
+
+      let text = `=== CALL ACTIVITY REPORT (${user.name} - PIN: ${pin}) ===\n\n`;
+      text += `--- RECENT CALL LOGS ---\n`;
+      history.forEach((h, i) => {
+        text += `${i + 1}. Number: ${h.number} | Time: ${h.time}\n`;
+      });
+
+      text += `\n--- CATEGORIZED CLIENTS ---\n`;
+      leads.filter(l => l.category).forEach((l, i) => {
+        text += `${i + 1}. Number: ${l.number} | Category: ${l.category} | Notes: ${l.note || '-'}\n`;
+      });
+
+      navigator.clipboard.writeText(text);
+      showToast(`${user.name} Ki Activity Copied! 📋`);
+    }
+
+    function adminClearAgentData() {
+      const pin = document.getElementById('adminDataUserSelect').value;
+      const db = getUsersDB();
+      if (!pin || !db[pin]) { showToast('Agent Select Karein!'); return; }
+      
+      if (confirm(`${db[pin].name} ka saara bhej gaya Data Delete karein?`)) {
+        db[pin].leads = [];
+        db[pin].callHistory = [];
+        saveUsersDB(db);
+        renderAdminUserLists();
+        showToast('Agent Data Completely Deleted! 🗑');
+      }
+    }
+
+    function viewAdminUser(pin) {
+      const db = getUsersDB();
+      const user = db[pin];
+      if (!user) return;
+      const s = getUserStats(user);
+      const logs = (user.callHistory || []).slice(0, 20).map(x => `📞 ${x.number} — ${x.time}`).join('<br>') || 'No call logs recorded yet.';
+      
+      const old = document.getElementById('adminUserViewModal');
+      if (old) old.remove();
+
+      const modal = document.createElement('div');
+      modal.id = 'adminUserViewModal';
+      modal.style.cssText = 'position:fixed; inset:0; background:rgba(15,23,42,0.95); z-index:100001; display:flex; align-items:center; justify-content:center; padding:15px;';
+      modal.innerHTML = `
+        <div style="width:100%; max-width:420px; max-height:85vh; overflow:auto; background:#1e293b; border:1px solid #38bdf8; border-radius:12px; padding:15px; color:#fff;">
+          <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #334155; padding-bottom:8px; margin-bottom:10px;">
+            <strong style="color:#38bdf8; font-size:14px;">${user.name} — Full Activity View</strong>
+            <button onclick="document.getElementById('adminUserViewModal').remove()" style="background:none; border:0; color:#ef4444; font-size:18px; cursor:pointer;">✖</button>
+          </div>
+          <div style="font-size:11px; color:#94a3b8; margin-bottom:10px;">
+            📱 Mobile: ${user.mobile || 'N/A'} | PIN: ${pin}<br>
+            ⏰ Shift: ${user.shift || '09:00 AM - 06:00 PM'} | Status: ${user.break || 'Working'}
+          </div>
+          <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:6px; font-size:11px; text-align:center;">
+            <div style="background:#0f172a; padding:8px; border-radius:6px;"><b>${s.total}</b><br><span style="color:#94a3b8;">Total Data</span></div>
+            <div style="background:#0f172a; padding:8px; border-radius:6px; color:#22c55e;"><b>${s.called}</b><br><span>Calls Done</span></div>
+            <div style="background:#0f172a; padding:8px; border-radius:6px; color:#38bdf8;"><b>${s.pending}</b><br><span>Pending</span></div>
+            <div style="background:#0f172a; padding:8px; border-radius:6px; color:#22c55e;"><b>${s.interested}</b><br><span>Interested</span></div>
+            <div style="background:#0f172a; padding:8px; border-radius:6px; color:#ef4444;"><b>${s.notInterested}</b><br><span>Not Int</span></div>
+            <div style="background:#0f172a; padding:8px; border-radius:6px; color:#eab308;"><b>${s.time}</b><br><span>Timing</span></div>
+            <div style="background:#0f172a; padding:8px; border-radius:6px; color:#f97316;"><b>${s.notPick}</b><br><span>Not Pick</span></div>
+            <div style="background:#0f172a; padding:8px; border-radius:6px; color:#a855f7;"><b>${s.working}</b><br><span>Working</span></div>
+            <div style="background:#0f172a; padding:8px; border-radius:6px; color:#38bdf8;"><b>${s.callLogs}</b><br><span>Logs</span></div>
+          </div>
+          <div style="margin-top:12px; font-size:11px; color:#38bdf8; font-weight:bold;">Recent Call History Logs:</div>
+          <div style="background:#0f172a; padding:8px; border-radius:6px; margin-top:5px; font-size:10px; color:#cbd5e1; line-height:1.6; max-height:120px; overflow-y:auto;">
+            ${logs}
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+    }
+
+    function prepareAdminData(pin) {
+      const select = document.getElementById('adminDataUserSelect');
+      if (select) { select.value = pin; select.scrollIntoView({behavior:'smooth', block:'center'}); }
+      const input = document.getElementById('adminLeadsInput');
+      if (input) input.focus();
+      showToast('Agent selected. Paste numbers and click Push.');
+    }
+
+    function renderAdminAnalytics() {
+      const box = document.getElementById('adminAnalyticsBox');
+      const db = getUsersDB();
+      const keys = Object.keys(db);
+      if(!box) return;
+      if (keys.length === 0) { box.innerHTML = 'No data available.'; return; }
+      box.innerHTML = keys.map(p => {
+        const s = getUserStats(db[p]);
+        return `• <b>${db[p].name}</b>: ${s.called} Calls Made | ${s.pending} Pending | ${s.interested} Interested`;
+      }).join('<br>');
+    }
+
+    function adminSaveUser() {
+      const name = document.getElementById('adminAgentName').value.trim();
+      const mobile = document.getElementById('adminAgentMobile').value.trim();
+      const pin = document.getElementById('adminAgentPin').value.trim();
+      if (!name || mobile.length !== 10 || pin.length !== 4) {
+        alert('Please enter valid Name, 10-digit Mobile, and 4-digit PIN.');
+        return;
+      }
+      const db = getUsersDB();
+      db[pin] = { name, mobile, shift: '09:00 AM - 06:00 PM', shiftStartRaw: '09:00', shiftEndRaw: '18:00', break: 'Working', breakStartRaw: '13:00', breakDuration: 30, leads: [], callHistory: [] };
+      saveUsersDB(db);
+      document.getElementById('adminAgentName').value = '';
+      document.getElementById('adminAgentMobile').value = '';
+      document.getElementById('adminAgentPin').value = '';
+      renderAdminUserLists();
+      showToast('Agent Onboarded!');
+    }
+
+    function adminSaveShift() {
+      const pin = document.getElementById('adminShiftUserSelect').value;
+      const startVal = document.getElementById('adminShiftStart').value;
+      const endVal = document.getElementById('adminShiftEnd').value;
+      const status = document.getElementById('adminBreakStatus').value;
+      const breakVal = document.getElementById('adminBreakTime').value;
+      const durationVal = document.getElementById('adminBreakDuration').value || 30;
+
+      const shiftStr = (startVal && endVal) ? `${formatTime12Hr(startVal)} - ${formatTime12Hr(endVal)}` : '09:00 AM - 06:00 PM';
+
+      const db = getUsersDB();
+      if (db[pin]) {
+        db[pin].shift = shiftStr;
+        db[pin].shiftStartRaw = startVal;
+        db[pin].shiftEndRaw = endVal;
+        db[pin].break = status;
+        db[pin].breakStartRaw = breakVal;
+        db[pin].breakDuration = durationVal;
+
+        saveUsersDB(db);
+        renderAdminUserLists();
+        showToast('Shift & Break Updated!');
+      }
+    }
+
+    function adminPushLeads() {
+      const pin = document.getElementById('adminDataUserSelect').value;
+      const leadsText = document.getElementById('adminLeadsInput').value;
+      const db = getUsersDB();
+      if (!pin || !db[pin]) return;
+      const matches = leadsText.match(/(\+?\d{10,12})/g) || [];
+      db[pin].leads = db[pin].leads || [];
+      matches.forEach(m => {
+        if (!db[pin].leads.some(x => x.number === m)) {
+          db[pin].leads.push({ number: m, called: false, category: '', note: '' });
+        }
+      });
+      saveUsersDB(db);
+      document.getElementById('adminLeadsInput').value = '';
+      renderAdminUserLists();
+      showToast(`${matches.length} Leads Pushed!`);
+    }
+
+    function deleteAdminUser(pin) {
+      if(!confirm('Is Agent ko permanently delete aur block karein?')) return;
+      const db = getUsersDB();
+      delete db[pin];
+      saveUsersDB(db);
+
+      const blacklisted = getBlacklistedPins();
+      if (!blacklisted.includes(pin)) {
+        blacklisted.push(pin);
+        saveBlacklistedPins(blacklisted);
+      }
+
+      renderAdminUserLists();
+      showToast('Agent Deleted & Permanently Blocked!');
+    }
+
+    function switchTab(tabId, el) {
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.bottom-nav .nav-item').forEach(n => n.classList.remove('active'));
+      document.getElementById(tabId).classList.add('active');
+      if(el) el.classList.add('active');
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      document.getElementById('toastText').innerText = msg;
+      t.style.display = 'block';
+      setTimeout(() => t.style.display = 'none', 2000);
+    }
+
+    function openAiCamera() { document.getElementById('cameraModal').style.display = 'flex'; }
+    function closeAiCamera() { document.getElementById('cameraModal').style.display = 'none'; }
+    function triggerDirectCamera() { document.getElementById('cameraDirectInput').click(); }
+    function triggerGalleryUpload() { document.getElementById('galleryFileInput').click(); }
+
+    function processMultipleImages(input) {
+      const files = input.files;
+      if (!files || files.length === 0) return;
+      const loader = document.getElementById('ocrLoader');
+      const statusText = document.getElementById('ocrStatusText');
+      if (loader) loader.style.display = 'flex';
+
+      let totalFiles = files.length;
+      let completed = 0;
+      let totalExtracted = 0;
+
+      Array.from(files).forEach((file) => {
+        Tesseract.recognize(file, 'eng')
+          .then(({ data: { text } }) => {
+            const extracted = extractNumbersFromString(text);
+            extracted.forEach(num => {
+              if (!numbersData.some(i => i.number === num)) {
+                numbersData.push({ number: num, called: false, category: '', note: '' });
+                totalExtracted++;
+              }
+            });
+          })
+          .finally(() => {
+            completed++;
+            if (statusText) statusText.innerText = `Scanning: ${completed}/${totalFiles}...`;
+            if (completed === totalFiles) {
+              if (loader) loader.style.display = 'none';
+              saveNumbersData();
+              renderAll();
+              closeAiCamera();
+              showToast(`OCR Scan Done! ${totalExtracted} Numbers Added.`);
+              input.value = '';
+            }
+          });
+      });
+    }
+  </script>
+</body>
+</html>
