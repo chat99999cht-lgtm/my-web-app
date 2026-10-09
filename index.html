@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -16,13 +16,12 @@ body{padding:22px}
 button,input,select{font:inherit}
 .app{max-width:1500px;margin:auto;display:grid;grid-template-columns:300px 1fr;gap:20px;min-height:calc(100vh - 44px)}
 
-/* Fixed Dealer Profile Card */
+/* Profile Side Card */
 .dealer-card{
   position:sticky;
   top:22px;
-  height:fit-content;
-  max-height:calc(100vh - 44px);
-  overflow-y:auto;
+  height:calc(100vh - 44px);
+  min-height:720px;
   background:linear-gradient(180deg,#151d28,#0f151e);
   border:1px solid #2b3542;
   border-radius:22px;
@@ -31,7 +30,6 @@ button,input,select{font:inherit}
   display:flex;
   flex-direction:column;
 }
-
 .logo{
   width:58px;
   height:58px;
@@ -42,29 +40,22 @@ button,input,select{font:inherit}
   font-size:25px;
   font-weight:900;
   color:#15110a;
-  margin-bottom:14px;
-  flex-shrink:0;
-}
-
-/* Perfect Profile Avatar Fit */
-.avatar-container {
-  width: 90px;
-  height: 90px;
-  margin-bottom: 12px;
-  flex-shrink: 0;
+  margin-bottom:18px;
 }
 .avatar{
-  width:100%;
-  height:100%;
+  width:112px;
+  height:112px;
   border-radius:50%;
-  object-fit:cover;
-  border:3px solid var(--accent);
-  display:block;
+  object-fit:contain;
+  object-position:center center;
+  background:#0b1017;
+  padding:3px;
+  border:3px solid #d9a44166;
+  margin-bottom:14px;
 }
-
 .dealer-card h2{
-  margin:0 0 4px;
-  font-size:20px;
+  margin:0 0 5px;
+  font-size:22px;
   font-weight:800;
   color:#fff;
 }
@@ -76,63 +67,63 @@ button,input,select{font:inherit}
   color:#e7c675;
   background:#d9a44118;
   border:1px solid #d9a44144;
-  padding:4px 10px;
+  padding:5px 11px;
   border-radius:999px;
-  font-size:11px;
-  margin:4px 0 16px;
+  font-size:12px;
+  margin:4px 0 20px;
   font-weight:600;
 }
 
 .info{
   display:grid;
-  gap:12px;
-  margin-bottom: 20px;
+  gap:16px;
+  margin-top:5px;
 }
 .info div{
   display:flex;
-  gap:10px;
+  gap:12px;
   align-items:flex-start;
   color:var(--muted);
-  font-size:12px;
-  line-height:1.3;
+  font-size:13px;
+  line-height:1.35;
 }
 .info b{
   color:#eef2f6;
   display:block;
-  font-size:12px;
+  font-size:13px;
   font-weight:700;
   margin-bottom:2px;
 }
 .icon{
-  width:24px;
-  height:24px;
-  border-radius:6px;
+  width:26px;
+  height:26px;
+  border-radius:8px;
   background:#ffffff0a;
   display:grid;
   place-items:center;
   flex:none;
-  font-size:12px;
+  font-size:14px;
 }
 
 .contact{
   margin-top:auto;
   display:grid;
-  gap:8px;
+  gap:10px;
 }
 .contact a{
   border:1px solid #2a3441;
   text-decoration:none;
-  padding:10px;
-  border-radius:10px;
+  padding:12px;
+  border-radius:11px;
   text-align:center;
   font-weight:800;
-  font-size:13px;
+  font-size:14px;
   display:flex;
   align-items:center;
   justify-content:center;
   gap:8px;
   cursor:pointer;
-  transition: 0.2s ease;
+  transition:0.2s ease;
 }
 .contact .btn-call{
   background:var(--accent);
@@ -145,38 +136,42 @@ button,input,select{font:inherit}
   border-color:#25D366;
 }
 
-/* Main Content Styles */
+/* Main Layout Styles */
 .main{min-width:0}
 .topbar{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:18px}
 .brand{font-size:25px;font-weight:900;letter-spacing:-.5px}
 .brand span{color:var(--accent)}
 .nav{display:flex;gap:7px;background:#10161f;border:1px solid var(--line);padding:5px;border-radius:12px}
-.nav button{background:transparent;border:0;color:var(--muted);padding:9px 13px;border-radius:8px;cursor:pointer;transition:0.2s;}
+.nav button{background:transparent;border:0;color:var(--muted);padding:9px 13px;border-radius:8px;cursor:pointer}
 .nav button.active,.nav button:hover{background:#202936;color:#fff}
-.hero{border:1px solid #293543;border-radius:22px;padding:26px;background:radial-gradient(circle at 85% 15%,#5b431d33,transparent 32%),linear-gradient(135deg,#151e29,#0e141c);overflow:hidden}
-.hero h1{font-size:clamp(26px,3.5vw,46px);line-height:1.05;max-width:750px;margin:0 0 10px;letter-spacing:-1px}
-.hero p{color:var(--muted);max-width:680px;margin:0 0 20px;font-size: 14px;}
-
+.hero{border:1px solid #293543;border-radius:22px;padding:30px;background:radial-gradient(circle at 85% 15%,#5b431d33,transparent 32%),linear-gradient(135deg,#151e29,#0e141c);overflow:hidden}
+.hero h1{font-size:clamp(30px,4vw,54px);line-height:1.03;max-width:750px;margin:0 0 12px;letter-spacing:-1.5px}
+.hero p{color:var(--muted);max-width:680px;margin:0 0 24px}
 .search{display:grid;grid-template-columns:1.3fr 1fr 1fr auto;gap:9px;background:#0a0f15;border:1px solid #2a3440;padding:9px;border-radius:15px}
-.search input,.search select{background:#151c26;color:#e9edf2;border:1px solid #293543;border-radius:10px;padding:12px;outline:none;font-size:13px;}
-.search button{border:0;border-radius:10px;background:var(--accent);color:#111;font-weight:900;padding:0 20px;cursor:pointer;transition:0.2s;}
-.search button:hover{background:var(--accent2)}
+.search input,.search select{background:#151c26;color:#e9edf2;border:1px solid #293543;border-radius:10px;padding:13px;outline:none}
+.search button{border:0;border-radius:10px;background:var(--accent);font-weight:900;padding:0 20px;cursor:pointer}
 
+/* Interactive Stats Grid - Updated to 5 Columns for Residential Land */
 .stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:16px 0}
 .stat{
   background:#111821;
   border:1px solid #242f3c;
   border-radius:14px;
-  padding:14px;
+  padding:15px;
   cursor:pointer;
-  transition: all 0.2s;
+  transition:all 0.2s ease;
 }
-.stat:hover, .stat.active-stat{border-color:var(--accent); background:#17202b;}
-.stat strong{font-size:18px;display:block}.stat small{color:var(--muted);font-size:11px;font-weight:600;}
+.stat:hover, .stat.active-stat{
+  border-color:var(--accent);
+  background:#17202c;
+  transform:translateY(-2px);
+}
+.stat strong{font-size:20px;display:block}.stat small{color:var(--muted);font-size:11px;font-weight:600;}
 
 .section-head{display:flex;align-items:end;justify-content:space-between;margin:24px 0 13px}
-.section-head h2{margin:0;font-size:20px}
+.section-head h2{margin:0;font-size:21px}.section-head span{color:var(--muted);font-size:13px}
 
+/* Grid Layout: Exactly 3 boxes per row */
 .grid{
   display:grid;
   grid-template-columns: repeat(3, 1fr);
@@ -192,15 +187,12 @@ button,input,select{font:inherit}
   flex-direction:column;
   justify-content:space-between;
   min-height: 340px;
-  transition: transform 0.2s, border-color 0.2s;
+  transition:transform 0.2s ease, border-color 0.2s ease;
+  cursor:pointer;
+  box-shadow:0 10px 25px #0004;
 }
 
-.property-box:hover {
-  transform: translateY(-4px);
-  border-color: var(--accent);
-}
-
-.property-box video.prop-video {
+.property-box img.prop-img, .property-box video.prop-video {
   width:100%;
   height:180px;
   object-fit:cover;
@@ -214,6 +206,11 @@ button,input,select{font:inherit}
   flex-direction:column;
   justify-content:space-between;
   flex-grow:1;
+}
+
+.property-box:hover{
+  transform:translateY(-4px);
+  border-color:var(--accent);
 }
 
 .box-top{
@@ -236,18 +233,23 @@ button,input,select{font:inherit}
 .box-type{
   color:var(--muted);
   font-size:12px;
+  font-weight:500;
 }
 
 .box-title{
   margin:10px 0 4px;
-  font-size:16px;
+  font-size:17px;
   font-weight:800;
   color:#fff;
+  line-height:1.2;
 }
 
 .box-location{
   color:var(--muted);
   font-size:12px;
+  display:flex;
+  align-items:center;
+  gap:4px;
 }
 
 .box-details{
@@ -279,141 +281,67 @@ button,input,select{font:inherit}
   align-items:center;
   border-top:1px solid #222c38;
   padding-top:10px;
+  margin-top:auto;
 }
 
 .box-price{
-  font-size:16px;
+  font-size:17px;
   font-weight:900;
   color:var(--accent2);
 }
 
 .box-btn{
-  background:var(--accent);
-  color:#15110a;
-  border:none;
-  padding:8px 14px;
+  background:#1a232f;
+  color:#fff;
+  border:1px solid #2e3a4a;
+  padding:6px 12px;
   border-radius:8px;
   font-size:12px;
-  font-weight:800;
-  cursor:pointer;
-  transition: 0.2s;
+  font-weight:700;
 }
 
-.box-btn:hover { background:var(--accent2); }
+.filters{display:flex;gap:8px;overflow:auto;padding-bottom:2px}
+.filters button{white-space:nowrap;background:#131a23;border:1px solid #293442;color:#b6c0cc;padding:8px 12px;border-radius:99px;cursor:pointer}
+.filters button.active{background:#d9a441;color:#171109;border-color:#d9a441}
+.footer{margin:26px 0 5px;color:#6f7b88;text-align:center;font-size:12px}
 
-.filters{display:flex;gap:8px;overflow:auto}
-.filters button{background:#131a23;border:1px solid #293442;color:#b6c0cc;padding:8px 12px;border-radius:99px;cursor:pointer;transition: 0.2s;}
-.filters button.active, .filters button:hover{background:#d9a441;color:#171109;border-color:#d9a441}
-
-/* AI MODAL SYSTEM */
-.modal-overlay {
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0, 0, 0, 0.85);
-  backdrop-filter: blur(8px);
-  display: none;
-  justify-content: center;
-  align-items: center;
-  z-index: 10000;
-  padding: 20px;
-}
-
-.modal-content {
-  background: #111722;
-  border: 1px solid var(--accent);
-  border-radius: 20px;
-  max-width: 520px;
-  width: 100%;
-  padding: 24px;
-  position: relative;
-  box-shadow: 0 0 40px rgba(217, 164, 65, 0.2);
-}
-
-.close-modal {
-  position: absolute;
-  top: 15px; right: 18px;
-  background: transparent;
-  border: none;
-  color: var(--muted);
-  font-size: 22px;
-  cursor: pointer;
-}
-
-.ai-badge {
-  display: inline-flex;
-  background: linear-gradient(135deg, var(--accent), #8a5d16);
-  color: #111;
-  font-size: 11px;
-  font-weight: 900;
-  padding: 4px 10px;
-  border-radius: 20px;
-  margin-bottom: 12px;
-}
-
-.ai-box {
-  background: #090e15;
-  border: 1px dashed #d9a44166;
-  border-radius: 12px;
-  padding: 14px;
-  margin: 15px 0;
-  font-size: 13px;
-  line-height: 1.5;
-}
-
-.guarantee-item {
-  font-size: 12px;
-  color: #4ade80;
-  background: #061f12;
-  border: 1px solid #166534;
-  padding: 8px 12px;
-  border-radius: 8px;
-  margin-top: 6px;
-  font-weight: 600;
-}
-
-.modal-btns {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin-top: 18px;
-}
-
-.modal-btns a {
-  padding: 12px;
-  border-radius: 10px;
-  font-weight: 800;
-  text-decoration: none;
-  text-align: center;
-  font-size: 13px;
-}
-
-.btn-ai-call { background: var(--accent); color: #111; }
-.btn-ai-wa { background: var(--green); color: #000; }
-
-@media(max-width:1100px){.grid{grid-template-columns: repeat(2, 1fr);}}
-@media(max-width:760px){.app{display:block}.dealer-card{position:relative;top:0;height:auto;margin-bottom:14px}.grid{grid-template-columns: 1fr;}.search{grid-template-columns:1fr;}}
+@media(max-width:1100px){.grid{grid-template-columns: repeat(2, 1fr);}.stats{grid-template-columns:repeat(3,1fr);}}
+@media(max-width:760px){body{padding:10px}.app{display:block}.dealer-card{position:relative;top:0;height:auto;min-height:0;margin-bottom:14px}.topbar{align-items:flex-start;flex-direction:column}.nav{width:100%;overflow:auto}.hero{padding:22px}.search{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns: 1fr;}}
+.ai-card-btn{width:100%;margin-top:12px;border:0;border-radius:10px;padding:11px 12px;background:linear-gradient(135deg,#d9a441,#f1c96a);color:#171109;font-weight:900;cursor:pointer}
+.ai-card-btn:hover{filter:brightness(1.08)}
+.ai-note{display:none;margin-top:10px;padding:11px;border-radius:10px;background:#0b121b;border:1px solid #354253;color:#dce5ef;font-size:12px;line-height:1.55}
+.ai-note.show{display:block}
+.ai-global{position:fixed;right:20px;bottom:20px;z-index:50;border:1px solid #f1c96a;border-radius:999px;padding:14px 19px;background:#d9a441;color:#171109;font-weight:900;box-shadow:0 8px 30px #0008;cursor:pointer}
+@media(max-width:760px){.ai-global{right:12px;bottom:12px}.property-box img.prop-img,.property-box video.prop-video{height:210px}}
 </style>
 </head>
 <body>
 <div class="app">
-  <!-- Fixed Profile Side Panel -->
+  <!-- Profile Side Card -->
   <aside class="dealer-card">
     <div class="logo">HCD</div>
-    <div class="avatar-container">
-      <img class="avatar" src="WhatsApp Image 2026-10-03 at 16.40.11.jpeg" alt="Harish Dixit">
-    </div>
+    <img class="avatar" src="WhatsApp Image 2026-10-03 at 16.40.11.jpeg" alt="Dealer Profile">
     <h2>Harish Dixit</h2>
     <span class="badge">● Verified Property Dealer</span>
     
     <div class="info">
-      <div><span class="icon">✉</span><span><b>Email</b>hcd.info@gmail.com</span></div>
-      <div><span class="icon">◷</span><span><b>Office Timing</b>10:00 AM to 8:00 PM</span></div>
-      <div><span class="icon">⌖</span><span><b>Office Visit</b>24 Hours Open</span></div>
+      <div>
+        <span class="icon">✉</span>
+        <span><b>Email</b>hcd.info@gmail.com</span>
+      </div>
+      <div>
+        <span class="icon">◷</span>
+        <span><b>Office Timing</b>10:00 AM to 8:00 PM</span>
+      </div>
+      <div>
+        <span class="icon">⌖</span>
+        <span><b>Office Visit</b>24 Hours Open</span>
+      </div>
     </div>
 
     <div class="contact">
-      <a class="btn-call" href="tel:+919876543210">📞 Call Dealer</a>
-      <a class="btn-whatsapp" href="https://wa.me/919876543210" target="_blank">💬 WhatsApp</a>
+      <a class="btn-call" href="tel:+919876543210">Call Dealer</a>
+      <a class="btn-whatsapp" href="https://wa.me/919876543210" target="_blank">WhatsApp</a>
     </div>
   </aside>
 
@@ -421,240 +349,167 @@ button,input,select{font:inherit}
     <header class="topbar">
       <div class="brand"><span>HCD</span> Property</div>
       <nav class="nav">
-        <button class="active" onclick="filterType('all')">All</button>
-        <button onclick="filterType('Buy')">Buy</button>
-        <button onclick="filterType('Rent')">Rent</button>
+        <button class="active">Buy</button>
+        <button>Rent</button>
+        <button>Sell</button>
+        <button>Projects</button>
       </nav>
     </header>
 
     <section class="hero">
-      <h1>Find verified land that feels like home.</h1>
-      <p>Explore approved residential plots with zero visiting fees and guaranteed genuine documents.</p>
-      
-      <!-- WORKING LIVE SEARCH BAR -->
+      <h1>Find a place that feels like home.</h1>
+      <p>Discover verified properties for sale and rent, compare options, and connect directly with a trusted property dealer.</p>
       <div class="search">
-        <input id="searchInput" oninput="runSearch()" placeholder="Search city, locality or land name (e.g. Noida)">
-        <select id="typeSelect" onchange="runSearch()">
-          <option value="all">Property Type</option>
-          <option value="Residential Land">Residential Land</option>
-          <option value="Plot">Govt Plot</option>
-        </select>
-        <select id="budgetSelect" onchange="runSearch()">
-          <option value="all">Budget</option>
-          <option value="under50">Under ₹50 Lakh</option>
-          <option value="50to100">₹50L – ₹1 Cr</option>
-          <option value="above100">Above ₹1 Cr</option>
-        </select>
-        <button onclick="runSearch()">Search</button>
+        <input id="q" placeholder="Search city, locality or property name">
+        <select id="type"><option value="all">Property Type</option><option>Apartment</option><option>Villa</option><option>Office</option><option>Plot</option><option>Residential Land</option></select>
+        <select id="budget"><option value="all">Budget</option><option value="under50">Under ₹50 Lakh</option><option value="50to100">₹50L – ₹1 Cr</option><option value="above100">Above ₹1 Cr</option></select>
+        <button>Search</button>
       </div>
     </section>
 
+    <!-- Interactive Stats Section with Residential Land -->
     <section class="stats">
-      <div class="stat" onclick="filterTag('all', this)"><strong>120+</strong><small>Approved Plots</small></div>
-      <div class="stat" onclick="filterTag('Residential Land', this)"><strong>95+</strong><small>Residential Land</small></div>
-      <div class="stat" onclick="filterTag('all', this)"><strong>100%</strong><small>Govt Approved</small></div>
-      <div class="stat" onclick="filterTag('all', this)"><strong>₹0</strong><small>Visiting Fee</small></div>
-      <div class="stat active-stat" onclick="filterTag('all', this)"><strong>4.9/5</strong><small>Rating</small></div>
+      <div class="stat" onclick="filterCategory('commercial', this)">
+        <strong>1,248+</strong>
+        <small>Commercial Flat</small>
+      </div>
+      <div class="stat" onclick="filterCategory('residential', this)">
+        <strong>326</strong>
+        <small>Residential Flat</small>
+      </div>
+      <div class="stat" onclick="filterCategory('farmhouse', this)">
+        <strong>18</strong>
+        <small>Farmhouse</small>
+      </div>
+      <div class="stat" onclick="filterCategory('plot', this)">
+        <strong>4.9/5</strong>
+        <small>Government Verified Plot</small>
+      </div>
+      <!-- New Residential Land Card -->
+      <div class="stat" onclick="filterCategory('land', this)">
+        <strong>95+</strong>
+        <small>Residential Land</small>
+      </div>
     </section>
 
-    <div class="section-head">
-      <h2 id="sectionTitle">Featured Open Land & Plots</h2>
+    <div class="section-head" id="properties-heading">
+      <div><h2 id="grid-title">Featured Properties</h2><span id="prop-count">8 land video listings</span></div>
       <div class="filters">
-        <button class="active" onclick="filterTag('all', this)">All Lands</button>
-        <button onclick="filterTag('Noida', this)">Noida</button>
-        <button onclick="filterTag('Greater Noida', this)">Greater Noida</button>
-        <button onclick="filterTag('Yamuna Expressway', this)">Yamuna Expressway</button>
+        <button class="active" onclick="filterCategory('all', this)">All</button>
+        <button onclick="filterCategory('residential', this)">Residential</button>
+        <button onclick="filterCategory('farmhouse', this)">Farmhouse</button>
+        <button onclick="filterCategory('commercial', this)">Commercial</button>
+        <button onclick="filterCategory('plot', this)">Govt Plots</button>
+        <button onclick="filterCategory('land', this)">Residential Land</button>
       </div>
     </div>
 
-    <!-- DYNAMICALLY RENDERED CARDS GRID -->
-    <section class="grid" id="propertyGrid">
-      <!-- Land Cards loaded via JavaScript -->
+    <!-- Grid Container with Properties -->
+    <section class="grid" id="property-grid">
+      <article class="property-box" data-cat="land">
+        <video class="prop-video" controls playsinline preload="metadata" poster="https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80"><source src="WhatsApp Video 2026-10-04 at 11.53.42.mp4" type="video/mp4">Your browser does not support video playback.</video>
+        <div class="property-box-content"><div><div class="box-top"><span class="box-tag">For Sale</span><span class="box-type">Residential Land</span></div><h3 class="box-title">Green Layout & Road View</h3><div class="box-location">📍 Sector 144, Noida</div><div class="box-details"><div>Land Area<b>250 Sq.Yd</b></div><div>Status<b>Road access — verify documents</b></div></div></div><div class="box-bottom"><div class="box-price">Price on enquiry</div><button class="box-btn" onclick="contactDealer('Sector 144, Noida')">Enquire</button></div><button class="ai-card-btn" onclick="speakLandAI('Sector 144, Noida')">✨ Ask AI about this land</button><div class="ai-note" aria-live="polite"></div></div>
+      </article>
+      <article class="property-box" data-cat="land">
+        <video class="prop-video" controls playsinline preload="metadata" poster="https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80"><source src="WhatsApp Video 2026-10-04 at 11.53.41.mp4" type="video/mp4">Your browser does not support video playback.</video>
+        <div class="property-box-content"><div><div class="box-top"><span class="box-tag">For Sale</span><span class="box-type">Residential Land</span></div><h3 class="box-title">Open Land & Boundary View</h3><div class="box-location">📍 Techzone 2, Greater Noida</div><div class="box-details"><div>Land Area<b>400 Sq.Yd</b></div><div>Status<b>Boundary details on enquiry</b></div></div></div><div class="box-bottom"><div class="box-price">Price on enquiry</div><button class="box-btn" onclick="contactDealer('Techzone 2, Greater Noida')">Enquire</button></div><button class="ai-card-btn" onclick="speakLandAI('Techzone 2, Greater Noida')">✨ Ask AI about this land</button><div class="ai-note" aria-live="polite"></div></div>
+      </article>
+      <article class="property-box" data-cat="land">
+        <video class="prop-video" controls playsinline preload="metadata" poster="https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80"><source src="land-video-3.mp4" type="video/mp4">Please add land-video-3.mp4 to the website folder.</video>
+        <div class="property-box-content"><div><div class="box-top"><span class="box-tag">For Enquiry</span><span class="box-type">Residential Land</span></div><h3 class="box-title">Greenfield Land Parcels</h3><div class="box-location">📍 Yamuna Expressway</div><div class="box-details"><div>Area<b>Ask for details</b></div><div>Status<b>Verify title & approvals</b></div></div></div><div class="box-bottom"><div class="box-price">Price on enquiry</div><button class="box-btn" onclick="contactDealer('Yamuna Expressway')">Enquire</button></div><button class="ai-card-btn" onclick="speakLandAI('Yamuna Expressway')">✨ Ask AI about this land</button><div class="ai-note" aria-live="polite"></div></div>
+      </article>
+      <article class="property-box" data-cat="land">
+        <video class="prop-video" controls playsinline preload="metadata" poster="https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80"><source src="land-video-4.mp4" type="video/mp4">Please add land-video-4.mp4 to the website folder.</video>
+        <div class="property-box-content"><div><div class="box-top"><span class="box-tag">For Enquiry</span><span class="box-type">Residential Land</span></div><h3 class="box-title">Vantara Area Land</h3><div class="box-location">📍 Vantara — location to be confirmed</div><div class="box-details"><div>Area<b>Ask for details</b></div><div>Status<b>Exact location to be verified</b></div></div></div><div class="box-bottom"><div class="box-price">Price on enquiry</div><button class="box-btn" onclick="contactDealer('Vantara area')">Enquire</button></div><button class="ai-card-btn" onclick="speakLandAI('Vantara area')">✨ Ask AI about this land</button><div class="ai-note" aria-live="polite"></div></div>
+      </article>
+      <article class="property-box" data-cat="land">
+        <video class="prop-video" controls playsinline preload="metadata" poster="https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80"><source src="land-video-5.mp4" type="video/mp4">Please add land-video-5.mp4 to the website folder.</video>
+        <div class="property-box-content"><div><div class="box-top"><span class="box-tag">For Enquiry</span><span class="box-type">Residential Land</span></div><h3 class="box-title">Garh Ganga Land</h3><div class="box-location">📍 Garh Ganga / Garhmukteshwar area</div><div class="box-details"><div>Area<b>Ask for details</b></div><div>Status<b>Check land-use & title</b></div></div></div><div class="box-bottom"><div class="box-price">Price on enquiry</div><button class="box-btn" onclick="contactDealer('Garh Ganga area')">Enquire</button></div><button class="ai-card-btn" onclick="speakLandAI('Garh Ganga area')">✨ Ask AI about this land</button><div class="ai-note" aria-live="polite"></div></div>
+      </article>
+      <article class="property-box" data-cat="land">
+        <video class="prop-video" controls playsinline preload="metadata" poster="https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80"><source src="land-video-6.mp4" type="video/mp4">Please add land-video-6.mp4 to the website folder.</video>
+        <div class="property-box-content"><div><div class="box-top"><span class="box-tag">For Enquiry</span><span class="box-type">Residential Land</span></div><h3 class="box-title">Greater Noida Extension</h3><div class="box-location">📍 Greater Noida West</div><div class="box-details"><div>Area<b>Ask for details</b></div><div>Status<b>Verify approvals</b></div></div></div><div class="box-bottom"><div class="box-price">Price on enquiry</div><button class="box-btn" onclick="contactDealer('Greater Noida West')">Enquire</button></div><button class="ai-card-btn" onclick="speakLandAI('Greater Noida West')">✨ Ask AI about this land</button><div class="ai-note" aria-live="polite"></div></div>
+      </article>
+      <article class="property-box" data-cat="land">
+        <video class="prop-video" controls playsinline preload="metadata" poster="https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80"><source src="land-video-7.mp4" type="video/mp4">Please add land-video-7.mp4 to the website folder.</video>
+        <div class="property-box-content"><div><div class="box-top"><span class="box-tag">For Enquiry</span><span class="box-type">Residential Land</span></div><h3 class="box-title">Noida Peripheral Land</h3><div class="box-location">📍 Noida — exact sector on enquiry</div><div class="box-details"><div>Area<b>Ask for details</b></div><div>Status<b>Site visit by appointment</b></div></div></div><div class="box-bottom"><div class="box-price">Price on enquiry</div><button class="box-btn" onclick="contactDealer('Noida')">Enquire</button></div><button class="ai-card-btn" onclick="speakLandAI('Noida')">✨ Ask AI about this land</button><div class="ai-note" aria-live="polite"></div></div>
+      </article>
+      <article class="property-box" data-cat="land">
+        <video class="prop-video" controls playsinline preload="metadata" poster="https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80"><source src="land-video-8.mp4" type="video/mp4">Please add land-video-8.mp4 to the website folder.</video>
+        <div class="property-box-content"><div><div class="box-top"><span class="box-tag">For Enquiry</span><span class="box-type">Residential / Farm Land</span></div><h3 class="box-title">Open Green Land Parcel</h3><div class="box-location">📍 NCR outskirts — exact location on enquiry</div><div class="box-details"><div>Area<b>Ask for details</b></div><div>Status<b>Verify records before purchase</b></div></div></div><div class="box-bottom"><div class="box-price">Price on enquiry</div><button class="box-btn" onclick="contactDealer('NCR outskirts')">Enquire</button></div><button class="ai-card-btn" onclick="speakLandAI('NCR outskirts')">✨ Ask AI about this land</button><div class="ai-note" aria-live="polite"></div></div>
+      </article>
     </section>
+    
+    <div class="footer">© 2026 HCD Property · Property Sales · Rent · Purchase · Land</div>
+    <button class="ai-global" onclick="speakLandAI('all listed locations')">✨ Talk to Property AI</button>
   </main>
 </div>
 
-<!-- WORKING AI ASSISTANT MODAL -->
-<div class="modal-overlay" id="aiModal">
-  <div class="modal-content">
-    <button class="close-modal" onclick="closeAiModal()">✕</button>
-    <div class="ai-badge">🤖 HCD AI Land Assistant</div>
-    <h3 class="modal-title" id="mTitle" style="margin:0 0 4px; color:#fff;">Land Title</h3>
-    <div style="font-size:12px; color:var(--muted); margin-bottom:12px;" id="mLoc">📍 Location</div>
-
-    <div class="box-details">
-      <div>Land Area<b id="mArea">-</b></div>
-      <div>Price<b id="mPrice" style="color:var(--accent2);">-</b></div>
-    </div>
-
-    <div class="ai-box">
-      <h4 style="margin:0 0 6px; color:var(--accent2);">✨ Property AI Overview</h4>
-      <p id="mDesc" style="margin:0; font-size:12px; color:#e2e8f0;">Loading...</p>
-    </div>
-
-    <div class="guarantee-item">✔ 100% Fully Government Approved Legal Documents</div>
-    <div class="guarantee-item">✔ Absolutely Free Site Visit — Zero (₹0) Visiting Charges</div>
-    <div class="guarantee-item">✔ Direct Direct Dealing with Experienced Owner/Dealer</div>
-
-    <div class="modal-btns">
-      <a class="btn-ai-call" href="tel:+919876543210">📞 Call Dealer Now</a>
-      <a class="btn-ai-wa" id="mWaLink" href="https://wa.me/919876543210" target="_blank">💬 WhatsApp Direct</a>
-    </div>
-  </div>
-</div>
-
 <script>
-// LIVE DATABASE OF LAND PROPERTIES
-const landProperties = [
-  {
-    id: 1,
-    title: "Green Layout & Highway Land",
-    location: "Sector 144, Noida",
-    area: "250 Sq.Yd",
-    price: 65, // in Lakhs
-    priceText: "₹65 Lakh",
-    tag: "Residential Land",
-    video: "WhatsApp Video 2026-10-04 at 11.53.42.mp4",
-    desc: "30 ft wide paved road land connected directly with Expressway. Immediate electricity and water line setup ready for construction."
-  },
-  {
-    id: 2,
-    title: "Gated Boundary Residential Plot",
-    location: "Techzone 2, Greater Noida",
-    area: "400 Sq.Yd",
-    price: 110, // in Lakhs
-    priceText: "₹1.10 Cr",
-    tag: "Residential Land",
-    video: "WhatsApp Video 2026-10-04 at 11.53.41.mp4",
-    desc: "Corner plot with 4-side boundary completed. Direct Registry and Mutation available with 100% clean title papers."
-  },
-  {
-    id: 3,
-    title: "Corner Commercial-Facing Land",
-    location: "Sector 22D, Yamuna Expressway",
-    area: "180 Sq.Yd",
-    price: 48, // in Lakhs
-    priceText: "₹48 Lakh",
-    tag: "Plot",
-    video: "https://www.w3schools.com/html/mov_bbb.mp4",
-    desc: "Fastest growing residential zone near Jewar Airport project. Great investment for 2x appreciation in 2 years."
+function speakLandAI(location){
+  const message = `नमस्ते! आप ${location} की जमीन देख रहे हैं। अगर आप इस जमीन को देखना चाहते हैं या किसी भी प्रकार की जानकारी लेना चाहते हैं, तो हम आपको अपने verified और experienced property dealer से सीधे संपर्क करवाने में मदद कर सकते हैं। रुचि होने पर नीचे दिए गए Call Dealer बटन का उपयोग करें। कंपनी के अनुसार site visit के लिए कोई visiting charge नहीं लिया जाता और pickup तथा drop की सुविधा उपलब्ध हो सकती है। कृपया यात्रा से पहले dealer से इसकी पुष्टि कर लें। जमीन खरीदने से पहले location, title, approvals और सभी documents की जांच अवश्य करें।`;
+  const card = [...document.querySelectorAll('.property-box')].find(el => el.querySelector('.ai-card-btn[onclick*="' + location.replace(/'/g, "\\'") + '"]'));
+  if(card){
+    const note=card.querySelector('.ai-note');
+    note.textContent=message;
+    note.classList.add('show');
   }
-];
-
-// RENDER CARDS TO GRID
-function renderProperties(list) {
-  const grid = document.getElementById('propertyGrid');
-  grid.innerHTML = '';
-
-  if (list.length === 0) {
-    grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: var(--muted); padding: 40px;">Koi bhi matching land nahi mila. Search text change karein.</div>';
-    return;
-  }
-
-  list.forEach(item => {
-    const card = document.createElement('article');
-    card.className = 'property-box';
-    card.innerHTML = `
-      <video class="prop-video" controls preload="metadata">
-        <source src="${item.video}" type="video/mp4">
-      </video>
-      <div class="property-box-content">
-        <div>
-          <div class="box-top">
-            <span class="box-tag">For Sale</span>
-            <span class="box-type">${item.tag}</span>
-          </div>
-          <h3 class="box-title">${item.title}</h3>
-          <div class="box-location">📍 ${item.location}</div>
-          <div class="box-details">
-            <div>Land Area<b>${item.area}</b></div>
-            <div>Status<b>Verified Clean Title</b></div>
-          </div>
-        </div>
-        <div class="box-bottom">
-          <div class="box-price">${item.priceText}</div>
-          <button class="box-btn" onclick="openAiModal(${item.id})">✨ View Details AI</button>
-        </div>
-      </div>
-    `;
-    grid.appendChild(card);
-  });
-}
-
-// SEARCH & FILTER FUNCTION
-function runSearch() {
-  const query = document.getElementById('searchInput').value.toLowerCase().trim();
-  const selectedType = document.getElementById('typeSelect').value;
-  const selectedBudget = document.getElementById('budgetSelect').value;
-
-  const filtered = landProperties.filter(item => {
-    // Text search
-    const matchesQuery = item.title.toLowerCase().includes(query) || item.location.toLowerCase().includes(query);
-    
-    // Type filter
-    const matchesType = selectedType === 'all' || item.tag === selectedType;
-
-    // Budget filter
-    let matchesBudget = true;
-    if (selectedBudget === 'under50') matchesBudget = item.price < 50;
-    else if (selectedBudget === '50to100') matchesBudget = item.price >= 50 && item.price <= 100;
-    else if (selectedBudget === 'above100') matchesBudget = item.price > 100;
-
-    return matchesQuery && matchesType && matchesBudget;
-  });
-
-  renderProperties(filtered);
-}
-
-// CATEGORY TAG FILTER
-function filterTag(tag, element) {
-  document.querySelectorAll('.filters button').forEach(b => b.classList.remove('active'));
-  if (element) element.classList.add('active');
-
-  if (tag === 'all') {
-    renderProperties(landProperties);
+  if ('speechSynthesis' in window) {
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(message);
+    utterance.lang='hi-IN'; utterance.rate=0.92; utterance.pitch=1;
+    window.speechSynthesis.speak(utterance);
   } else {
-    const filtered = landProperties.filter(i => 
-      i.location.toLowerCase().includes(tag.toLowerCase()) || i.tag.toLowerCase() === tag.toLowerCase()
-    );
-    renderProperties(filtered);
+    alert(message);
   }
 }
-
-function filterType(type) {
-  renderProperties(landProperties);
+function contactDealer(location){
+  const message = `नमस्ते, मुझे ${location} की जमीन के बारे में जानकारी चाहिए।`;
+  if(confirm(message + "\\nCall Dealer पर कॉल करने के लिए OK दबाएँ।")){
+    window.location.href='tel:+919876543210';
+  }
 }
-
-// AI MODAL CONTROLLER
-function openAiModal(id) {
-  const item = landProperties.find(p => p.id === id);
-  if (!item) return;
-
-  document.getElementById('mTitle').innerText = item.title;
-  document.getElementById('mLoc').innerText = "📍 " + item.location;
-  document.getElementById('mArea').innerText = item.area;
-  document.getElementById('mPrice').innerText = item.priceText;
-  document.getElementById('mDesc').innerText = item.desc;
+function filterCategory(category, element){
+  const boxes = document.querySelectorAll('.property-box');
+  const title = document.getElementById('grid-title');
+  const count = document.getElementById('prop-count');
+  const stats = document.querySelectorAll('.stat');
   
-  const waMsg = encodeURIComponent(`Hi HCD Property, I am interested in: ${item.title} (${item.location})`);
-  document.getElementById('mWaLink').href = `https://wa.me/919876543210?text=${waMsg}`;
-
-  document.getElementById('aiModal').style.display = 'flex';
-}
-
-function closeAiModal() {
-  document.getElementById('aiModal').style.display = 'none';
-}
-
-// Close Modal on Outside Click
-window.onclick = function(e) {
-  if (e.target === document.getElementById('aiModal')) {
-    closeAiModal();
+  stats.forEach(s => s.classList.remove('active-stat'));
+  if(element && element.classList.contains('stat')){
+    element.classList.add('active-stat');
   }
-};
 
-// INITIAL RENDER ON LOAD
-renderProperties(landProperties);
+  let visibleCount = 0;
+
+  boxes.forEach(box => {
+    if(category === 'all' || box.getAttribute('data-cat') === category){
+      box.style.display = 'flex';
+      visibleCount++;
+    } else {
+      box.style.display = 'none';
+    }
+  });
+
+  // Dynamic titles on click
+  if(category === 'land'){
+    title.innerText = 'Open Residential Land & Plots (Khali Zameen)';
+  } else if(category === 'commercial'){
+    title.innerText = 'Commercial Properties (Shops, Malls & Offices)';
+  } else if(category === 'residential'){
+    title.innerText = 'Residential Flats & Apartments';
+  } else if(category === 'farmhouse'){
+    title.innerText = 'Luxury Farmhouses & Villas';
+  } else if(category === 'plot'){
+    title.innerText = 'Government Verified Plots';
+  } else {
+    title.innerText = 'Featured Properties';
+  }
+
+  count.innerText = visibleCount + ' properties available';
+
+  document.getElementById('properties-heading').scrollIntoView({ behavior: 'smooth' });
+}
 </script>
 </body>
 </html>
