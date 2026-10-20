@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HCD Property | Find Your Dream Property</title>
+<style>
+:root{--navy:#082747;--blue:#087df5;--cyan:#19b8f2;--green:#079764;--ink:#132b46;--muted:#6b7e93;--line:#e2eaf3;--bg:#f5f8fc}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;background:var(--bg);color:var(--ink)}button,input,select,textarea{font:inherit}button{cursor:pointer;border:0}
+header{background:var(--navy);color:white;display:flex;align-items:center;justify-content:space-between;padding:14px clamp(16px,4vw,48px);gap:18px;position:sticky;top:0;z-index:5;box-shadow:0 4px 18px #061c3430}
+.brand{display:flex;align-items:center;gap:10px;font-size:25px;font-weight:800;white-space:nowrap}.brand-mark{font-size:34px;color:var(--cyan)}.brand small{display:block;font-size:11px;font-weight:500;color:#c7d9ea;letter-spacing:.5px}
+nav{display:flex;align-items:center;gap:22px}nav a{color:#e9f2fc;text-decoration:none;font-size:14px}nav a:hover{color:#38c5ff}.primary{background:var(--blue);color:white;padding:12px 17px;border-radius:10px;font-weight:700}.primary:hover{background:#0066d7}
+.hero{padding:26px clamp(16px,4vw,48px) 20px;color:white;background:linear-gradient(90deg,#071d35f5 0%,#092844d9 45%,#09284440 100%),url('https://images.unsplash.com/photo-160059pareal-0?auto=format&fit=crop&w=1800&q=80');background-color:#143956;background-image:linear-gradient(90deg,#071d35f5 0%,#092844d9 45%,#09284455 100%),url('https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1800&q=85');background-size:cover;background-position:center;min-height:205px}
+.hero h1{font-size:clamp(25px,3vw,36px);margin:0 0 6px;max-width:620px}.hero h1 span{color:#45bdff}.hero p{margin:0 0 14px;color:#d9e8f6}
+.searchbar{display:grid;grid-template-columns:2fr 1.2fr 1.2fr auto;gap:8px;background:white;padding:7px;border-radius:13px;box-shadow:0 10px 30px #00172d40;max-width:1200px}.field{display:flex;align-items:center;gap:9px;padding:0 12px;border:1px solid var(--line);border-radius:9px;min-width:0}.field span{font-size:19px;color:var(--muted)}.field input,.field select{border:0;outline:0;width:100%;padding:9px 0;color:var(--ink);background:transparent;min-width:0}
+main{display:grid;grid-template-columns:245px minmax(0,1fr);gap:18px;padding:18px clamp(14px,2vw,28px);max-width:1600px;margin:auto}.panel{background:white;border:1px solid var(--line);border-radius:12px;padding:17px;margin-bottom:15px}.panel h3{margin:0 0 15px;font-size:16px}.filter-group{border-top:1px solid #edf1f6;padding:13px 0}.filter-group strong{display:block;font-size:13px;margin-bottom:10px}.filter-group label{display:flex;gap:8px;align-items:center;margin:9px 0;font-size:13px;color:#3b526b}.filter-group input[type=checkbox]{accent-color:var(--blue)}
+.owner-avatar{width:56px;height:56px;border-radius:50%;object-fit:cover;background:#e7eff7}.owner-top{display:flex;gap:11px;align-items:center}.owner-top p{margin:4px 0;font-size:12px;color:var(--muted)}.verified{color:var(--green);font-size:12px;font-weight:700}.owner-line{font-size:13px;margin-top:15px;color:#3c5873}.outline{background:white;color:var(--blue);border:1px solid #a9cfff;border-radius:8px;padding:10px 12px;font-weight:700}.outline:hover{background:#eef6ff}
+.results-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:0 0 14px}.results-head h2{font-size:21px;margin:0}.results-head select{padding:10px;border:1px solid var(--line);border-radius:8px;background:white;color:var(--ink)}
+.cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.property-card{background:white;border:1px solid var(--line);border-radius:12px;overflow:hidden;box-shadow:0 3px 12px #12365b08;transition:.2s;min-width:0}.property-card:hover{transform:translateY(-3px);box-shadow:0 12px 25px #12365b14}.photo-wrap{height:142px;position:relative;background:#dbe7f1;overflow:hidden}.photo-wrap img{width:100%;height:100%;object-fit:cover;cursor:pointer;display:block}.tag{position:absolute;top:8px;left:8px;background:var(--green);color:white;font-size:11px;font-weight:800;padding:5px 7px;border-radius:7px}.tag.rent{background:var(--blue)}.video-call{position:absolute;right:7px;top:7px;background:#087df5;color:white;border-radius:30px;padding:6px 8px;font-size:10px;font-weight:800;box-shadow:0 2px 8px #0003}.play{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);border:2px solid white;border-radius:50%;width:36px;height:36px;background:#0008;color:white;font-size:20px}.heart{position:absolute;right:10px;bottom:10px;background:white;border-radius:50%;width:31px;height:31px;color:#24435e;font-size:17px}
+.card-body{padding:10px}.card-body h3{font-size:14px;margin:0 0 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.location{color:#54718e;font-size:11px;margin-bottom:8px;line-height:1.35}.price-row{display:flex;justify-content:space-between;align-items:baseline;gap:6px;border-bottom:1px solid #edf1f6;padding-bottom:8px}.price{color:var(--green);font-size:16px;font-weight:800}.rate{font-size:11px;color:#53728d;white-space:nowrap}.specs{display:flex;flex-wrap:wrap;gap:8px;padding:9px 0;font-size:11px;color:#496580}.card-owner{display:flex;align-items:center;gap:6px;border-top:1px solid #edf1f6;padding-top:9px}.card-owner img{width:29px;height:29px;border-radius:50%;object-fit:cover}.card-owner div{min-width:0;flex:1}.card-owner b{display:block;font-size:12px}.card-owner small{font-size:11px;color:var(--muted)}.call-owner{border:1px solid #20b980;background:#fff;color:#078858;padding:6px 7px;border-radius:8px;font-size:10px;font-weight:800}
+.bottom-banner{margin-top:18px;background:#eaf4ff;border:1px solid #d2e6ff;border-radius:12px;padding:18px;display:flex;align-items:center;justify-content:space-between;gap:12px}.bottom-banner p{margin:5px 0 0;color:#607890;font-size:13px}
+.modal{display:none;position:fixed;inset:0;background:#06182bd9;z-index:20;align-items:center;justify-content:center;padding:20px}.modal.open{display:flex}.modal-box{background:white;border-radius:16px;width:min(900px,100%);max-height:92vh;overflow:auto;position:relative;padding:22px}.close{position:absolute;right:14px;top:12px;background:#edf3f9;border-radius:50%;width:35px;height:35px;font-size:22px}.modal-box h2{margin:0 45px 18px 0}.media-layout{display:grid;grid-template-columns:1.2fr 1fr;gap:18px}.media-layout img,.media-layout video{width:100%;border-radius:10px;max-height:390px;object-fit:cover;background:#10283d}.media-layout p{color:var(--muted);line-height:1.5}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.form-grid label{font-size:13px;font-weight:700;display:flex;flex-direction:column;gap:6px}.form-grid input,.form-grid select,.form-grid textarea{border:1px solid #dce5ef;border-radius:8px;padding:11px;width:100%;background:white}.form-grid .wide{grid-column:1/-1}.hint{font-size:12px;color:var(--muted);font-weight:400}.empty{padding:40px;text-align:center;background:white;border:1px dashed #b8c9da;border-radius:12px;color:var(--muted);grid-column:1/-1}
+.dealer-card{position:relative;overflow:hidden;text-align:center;padding:18px 14px 15px;border-radius:19px;background:linear-gradient(145deg,#fff 0%,#eef6ff 100%);border:1px solid #d9e9fa;box-shadow:8px 9px 0 -4px #d6e6f7,0 14px 28px rgba(8,39,71,.13),inset 1px 1px 0 #fff;transform:perspective(850px) rotateX(1deg);transition:transform .25s,box-shadow .25s}
+.dealer-card:hover{transform:perspective(850px) rotateX(0) translateY(-3px);box-shadow:9px 12px 0 -4px #d6e6f7,0 20px 32px rgba(8,39,71,.18)}
+.dealer-card:before{content:"";position:absolute;top:-50px;right:-45px;width:125px;height:125px;border-radius:50%;background:radial-gradient(circle,#35b8ff55,transparent 70%);pointer-events:none}
+.dealer-avatar{width:78px;height:78px;display:block;margin:0 auto 10px;border-radius:50%;object-fit:cover;border:4px solid white;box-shadow:0 5px 0 #c9dff5,0 9px 18px #0b47752c;background:#e6f2ff}
+.dealer-name{font-size:17px;font-weight:850;margin:0 0 4px;overflow-wrap:anywhere}.dealer-role{font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:#087df5;font-weight:800;margin-bottom:13px}
+.dealer-detail{display:flex;gap:9px;text-align:left;align-items:flex-start;padding:8px 3px;border-top:1px solid #dfeaf5;font-size:12px;line-height:1.4;color:#3c5873;overflow-wrap:anywhere}.dealer-detail span:first-child{width:18px;flex:none;text-align:center}.dealer-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}.dealer-actions button{font-size:11px;padding:9px 5px;border-radius:9px}.profile-edit-panel{display:none;margin:0 0 15px;padding:15px;border-radius:13px;background:linear-gradient(145deg,#f2f8ff,#fff);border:1px solid #cfe2f8;box-shadow:inset 2px 2px 6px #e0ebf7}.profile-edit-panel.open{display:block}.profile-edit-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.profile-edit-grid label{font-size:12px;font-weight:700;display:flex;flex-direction:column;gap:5px}.profile-edit-grid input{width:100%;padding:10px;border:1px solid #d5e3f1;border-radius:8px;background:white}.profile-edit-grid .wide{grid-column:1/-1}
+@media(max-width:780px){.profile-edit-grid{grid-template-columns:1fr}.profile-edit-grid .wide{grid-column:auto}}
+.admin-lock-note{font-size:13px;color:var(--muted);line-height:1.5}.admin-property-list{margin:16px 0;padding:14px;border:1px solid var(--line);border-radius:12px;background:#f8fbff}.admin-property-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}.admin-property-row:last-child{border-bottom:0}.admin-property-row img{width:58px;height:48px;object-fit:cover;border-radius:8px}.admin-property-row .admin-property-info{flex:1;min-width:0}.admin-property-row b{display:block;font-size:13px;overflow-wrap:anywhere}.admin-property-row small{color:var(--muted);font-size:11px}.admin-property-row .admin-actions{display:flex;gap:6px;flex-wrap:wrap}.admin-property-row .admin-actions button{padding:7px 9px;font-size:11px}.danger{background:#fff0f0;color:#c52d3a;border:1px solid #f2b8bd;border-radius:8px;font-weight:700}.admin-pill{display:inline-block;background:#e3f2ff;color:#075cb7;padding:5px 8px;border-radius:20px;font-size:11px;font-weight:800;margin-left:6px}
+footer{text-align:center;padding:25px;color:#73859a;font-size:12px}
+@media(max-width:1350px){.cards{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:1100px){.cards{grid-template-columns:repeat(2,minmax(0,1fr))}main{grid-template-columns:230px minmax(0,1fr)}nav{gap:12px}}
+@media(max-width:780px){header{flex-wrap:wrap}.brand{font-size:21px}nav{order:3;width:100%;overflow:auto;padding:5px 0}nav a{white-space:nowrap}.hero{padding-top:24px;padding-bottom:18px}.searchbar{grid-template-columns:1fr 1fr}.searchbar .field:first-child{grid-column:1/-1}.searchbar button{grid-column:1/-1}main{grid-template-columns:1fr}.sidebar{display:grid;grid-template-columns:1fr 1fr;gap:12px}.panel{margin:0}.cards{grid-template-columns:repeat(2,minmax(0,1fr))}.photo-wrap{height:145px}}
+@media(max-width:520px){.cards,.sidebar,.searchbar,.form-grid,.media-layout{grid-template-columns:1fr}.searchbar .field:first-child{grid-column:auto}.hero{min-height:unset}.results-head{align-items:flex-start;flex-direction:column}.photo-wrap{height:180px}.bottom-banner{align-items:flex-start;flex-direction:column}.form-grid .wide{grid-column:auto}}
+:root{--shadow-soft:0 10px 24px rgba(8,39,71,.09);--shadow-deep:0 18px 38px rgba(8,39,71,.17)}
+body{background:radial-gradient(ellipse at 10% 0%,#e5f2ff 0,transparent 34%),linear-gradient(180deg,#f7faff 0%,#edf3fa 100%);perspective:1400px}
+header{box-shadow:0 8px 22px rgba(2,20,39,.25);border-bottom:1px solid rgba(255,255,255,.12)}
+.brand-mark{display:inline-flex;align-items:center;justify-content:center;width:43px;height:43px;border-radius:13px;background:linear-gradient(145deg,#39c8ff,#087df5);color:#fff;box-shadow:inset 2px 2px 5px #ffffff75,inset -3px -4px 8px #003c8c66,0 7px 14px #00a8ff40}
+.hero{position:relative;isolation:isolate;box-shadow:inset 0 -18px 30px rgba(3,20,38,.24)}
+.hero:after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(120deg,rgba(16,132,241,.13),transparent 55%);pointer-events:none}
+.searchbar{border:1px solid rgba(255,255,255,.85);box-shadow:0 13px 0 -7px rgba(1,22,42,.17),0 18px 34px rgba(0,15,34,.25);transform:translateY(2px)}
+.field{background:linear-gradient(145deg,#fff,#f3f7fc);box-shadow:inset 2px 2px 5px #dce6f0,inset -2px -2px 5px #fff}
+.primary{box-shadow:0 4px 0 #0059bb,0 8px 16px rgba(8,125,245,.24);transition:transform .18s,box-shadow .18s,filter .18s}
+.primary:hover{transform:translateY(-2px);box-shadow:0 6px 0 #0059bb,0 12px 20px rgba(8,125,245,.3);filter:saturate(1.12)}
+.primary:active{transform:translateY(2px);box-shadow:0 1px 0 #0059bb}
+.panel{background:linear-gradient(145deg,#fff 0%,#f8fbff 100%);box-shadow:7px 7px 18px rgba(18,54,91,.055),-5px -5px 14px rgba(255,255,255,.9);border-color:#e0eaf5;transform:translateZ(8px)}
+.cards{perspective:1200px;gap:15px}
+.property-card{position:relative;isolation:isolate;border:1px solid rgba(255,255,255,.95);border-radius:15px;background:linear-gradient(145deg,#fff,#f8fbff);box-shadow:8px 9px 0 -4px #dce7f3,0 10px 24px rgba(8,39,71,.09),inset 1px 1px 0 #fff;transform-style:preserve-3d;transition:transform .28s ease,box-shadow .28s ease,border-color .28s ease}
+.property-card:before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;background:linear-gradient(135deg,#fff,#dcecff 42%,#fff);-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none;z-index:2}
+.property-card:hover{transform:translateY(-7px) rotateX(2deg) rotateY(-1deg) translateZ(10px);box-shadow:11px 14px 0 -5px #d5e4f5,0 22px 38px rgba(8,39,71,.18),inset 1px 1px 0 #fff;border-color:#c7e1ff}
+.photo-wrap{transform:translateZ(12px);box-shadow:0 5px 12px rgba(5,31,57,.12)}
+.photo-wrap img{transition:transform .45s ease,filter .45s ease;filter:saturate(1.04) contrast(1.02)}
+.property-card:hover .photo-wrap img{transform:scale(1.045);filter:saturate(1.12)}
+.tag,.video-call,.play,.heart{box-shadow:0 4px 10px rgba(0,20,40,.24);transform:translateZ(22px)}
+.video-call{background:linear-gradient(145deg,#22baff,#006be9);border:1px solid #a7e7ff}
+.play{box-shadow:0 5px 15px #0005,inset 1px 1px 3px #ffffff66}
+.card-body{position:relative;transform:translateZ(7px)}
+.price{ text-shadow:0 1px 0 #d5f6e8 }
+.call-owner,.outline{box-shadow:0 3px 0 rgba(7,136,88,.12);transition:transform .18s,box-shadow .18s}
+.call-owner:hover,.outline:hover{transform:translateY(-2px);box-shadow:0 6px 12px rgba(8,65,110,.12)}
+.results-head select,.filter-group select{box-shadow:inset 1px 1px 3px #e5edf6,0 3px 7px #12365b08}
+.bottom-banner{background:linear-gradient(120deg,#eaf4ff,#fff);box-shadow:0 7px 0 -3px #d9e9fb,0 12px 25px rgba(8,39,71,.07)}
+.modal-box{box-shadow:0 30px 90px rgba(0,0,0,.4);border:1px solid #ffffffaa}
+@media(hover:none){.property-card:hover{transform:none}.property-card:active{transform:scale(.99)}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><span class="brand-mark">⌂</span><div>HCD Property<small>FIND YOUR DREAM PROPERTY</small></div></div>
+  <nav><a href="#">Home</a><a href="#listings">Buy</a><a href="#listings">Rent</a><a href="#" onclick="openAdd();return false">Sell</a><a href="#listings">Projects</a></nav>
+  <button class="primary" onclick="openAdd()">＋ List Property</button>
+</header>
+<section class="hero">
+  <h1>Find Your <span>Perfect Property</span></h1>
+  <h2 style="margin:0 0 9px;font-size:22px">Buy · Sell · Rent</h2>
+  <p>Explore properties in your desired location. &nbsp; Verified listings · Direct owner contact</p>
+  <div class="searchbar">
+    <div class="field"><span>⌖</span><input id="searchLocation" placeholder="Enter location (e.g. Noida, Delhi, Gurgaon)"></div>
+    <div class="field"><span>⌂</span><select id="searchType"><option value="">All property types</option><option>Residential</option><option>Commercial</option><option>Plot / Land</option><option>Farm House</option></select></div>
+    <div class="field"><span>₹</span><select id="searchBudget"><option value="">Any price</option><option value="5000000">Up to ₹50 Lakh</option><option value="10000000">Up to ₹1 Crore</option><option value="30000000">Up to ₹3 Crore</option></select></div>
+    <button class="primary" onclick="renderProperties()">⌕ Search</button>
+  </div>
+</section>
+<main>
+  <aside class="sidebar">
+    <section class="dealer-card" id="dealerProfileCard" aria-label="Property dealer profile"></section>
+    <section class="panel">
+      <h3>⚑ &nbsp; Filters <button style="float:right;background:none;color:var(--blue);font-size:12px" onclick="clearFilters()">Clear all</button></h3>
+      <div class="filter-group"><strong>Property Type</strong>
+        <label><input type="checkbox" class="type-filter" value="Residential"> Residential</label>
+        <label><input type="checkbox" class="type-filter" value="Commercial"> Commercial</label>
+        <label><input type="checkbox" class="type-filter" value="Plot / Land"> Plot / Land</label>
+        <label><input type="checkbox" class="type-filter" value="Farm House"> Farm House</label>
+      </div>
+      <div class="filter-group"><strong>For Sale / Rent</strong>
+        <label><input type="checkbox" class="status-filter" value="For Sale"> For Sale</label>
+        <label><input type="checkbox" class="status-filter" value="For Rent"> For Rent</label>
+      </div>
+      <div class="filter-group"><strong>Bedrooms</strong><select id="bedFilter" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:8px" onchange="renderProperties()"><option value="">Any BHK</option><option value="1">1 BHK</option><option value="2">2 BHK</option><option value="3">3 BHK</option><option value="4">4+ BHK</option></select></div>
+      <button class="outline" style="width:100%" onclick="renderProperties()">Apply Filters</button>
+    </section>
+  </aside>
+  <section id="listings">
+    <div class="results-head"><h2>Featured Properties <span id="count" style="font-size:13px;color:var(--muted);font-weight:500"></span></h2><select id="sortBy" onchange="renderProperties()"><option value="latest">Sort by: Latest</option><option value="low">Price: Low to High</option><option value="high">Price: High to Low</option></select></div>
+    <div class="cards" id="cards"></div>
+    <div class="bottom-banner"><div><b>Want to see the property live?</b><p>Tap “Video Call” on a property to contact its owner directly.</p></div><button class="primary" onclick="alert('Choose a property and use its Video Call button.')">▣ &nbsp; Contact Now</button></div>
+  </section>
+</main>
+<footer>© 2026 HCD Property · Demo website. All rights reserved.</footer>
+
+<!-- ADMIN GATE MODAL WITH NO PIN HINT -->
+<div class="modal" id="adminGateModal" onclick="if(event.target===this)closeModal('adminGateModal')">
+  <div class="modal-box" style="max-width:430px">
+    <button class="close" onclick="closeModal('adminGateModal')">×</button>
+    <h2>🔒 Owner Admin Login</h2>
+    <p class="admin-lock-note">Enter the 4-digit PIN to manage dealer profile and property listings.</p>
+    <form id="adminPinForm" onsubmit="unlockAdmin(event)">
+      <label style="display:block;font-size:13px;font-weight:700;margin:14px 0">
+        Admin PIN
+        <input id="adminPin" type="password" inputmode="numeric" maxlength="4" pattern="[0-9]{4}" autocomplete="off" required placeholder="Enter 4-digit PIN" style="display:block;width:100%;padding:13px;border:1px solid #d5e3f1;border-radius:9px;margin-top:7px;letter-spacing:8px;font-size:20px;text-align:center">
+      </label>
+      <p id="pinError" style="display:none;color:#c52d3a;font-size:12px;margin-bottom:10px;text-align:center">Incorrect PIN. Please try again.</p>
+      <button class="primary" type="submit" style="width:100%">Unlock Admin Panel</button>
+    </form>
+  </div>
+</div>
+
+<div class="modal" id="detailModal" onclick="if(event.target===this)closeModal('detailModal')"><div class="modal-box"><button class="close" onclick="closeModal('detailModal')">×</button><div id="detailContent"></div></div></div>
+
+<div class="modal" id="addModal" onclick="if(event.target===this)closeModal('addModal')">
+  <div class="modal-box">
+    <button class="close" onclick="closeModal('addModal')">×</button>
+    <h2>🔐 HCD Property Admin Panel <span class="admin-pill">Unlocked</span></h2>
+    <div style="padding:10px 14px;margin:0 0 15px;border:1px solid #cfe2f8;background:#eef7ff;border-radius:10px;font-size:12px;" id="firebaseStatus">Connecting...</div>
+    
+    <section class="profile-edit-panel" id="profileEditPanel">
+      <h3 style="margin:0 0 5px">Dealer / Owner Profile</h3>
+      <p class="hint" style="margin:0 0 12px">These details appear in the 3D profile card on the left side of your website.</p>
+      <form id="profileForm" class="profile-edit-grid" onsubmit="saveDealerProfile(event)">
+        <label>Dealer / owner name<input name="name" required></label>
+        <label>Phone number<input name="phone" required></label>
+        <label>Email address<input name="email" type="email" required></label>
+        <label>Office hours<input name="hours" placeholder="Mon–Sat, 10 AM–7 PM" required></label>
+        <label class="wide">Office address<input name="address" required></label>
+        <label class="wide">Profile photo URL (optional)<input name="photo" type="url" placeholder="https://example.com/profile.jpg"></label>
+        <div class="wide">
+          <button class="primary" type="submit">Save Profile Details</button>
+          <button type="button" class="outline" onclick="toggleProfileEditor(false)">Cancel</button>
+        </div>
+      </form>
+    </section>
+
+    <div style="margin:0 0 15px;display:flex;gap:9px;flex-wrap:wrap">
+      <button type="button" class="outline" onclick="toggleProfileEditor()">✎ Edit Dealer Profile</button>
+      <button type="button" class="outline" onclick="resetPropertyForm()">＋ Add New Property</button>
+      <button type="button" class="danger" onclick="lockAdmin()">🔒 Lock Admin</button>
+    </div>
+
+    <section class="admin-property-list">
+      <h3 style="margin:0 0 8px">Manage Listed Properties <span id="adminPropertyCount" class="hint"></span></h3>
+      <div id="adminPropertyList"></div>
+    </section>
+
+    <h3 id="propertyFormHeading" style="margin:16px 0 12px">＋ Add New Property</h3>
+    <form id="addForm" class="form-grid" onsubmit="saveProperty(event)">
+      <input type="hidden" name="propertyId" id="propertyId" value="">
+      <label>Property title<input name="title" id="pTitle" required placeholder="e.g. 3 BHK Independent House"></label>
+      <label>Property type<select name="type" id="pType"><option>Residential</option><option>Commercial</option><option>Plot / Land</option><option>Farm House</option></select></label>
+      <label>Sale / Rent<select name="status" id="pStatus"><option>For Sale</option><option>For Rent</option></select></label>
+      <label>Price (₹)<input name="price" id="pPrice" type="number" min="1" required placeholder="12500000"></label>
+      <label>Rate per gaj / sq yd (₹)<input name="rate" id="pRate" type="number" min="0" placeholder="50000"></label>
+      <label>Area (sq ft / sq yd)<input name="area" id="pArea" required placeholder="1800 sq ft"></label>
+      <label>BHK / rooms<input name="bhk" id="pBhk" placeholder="3 BHK / 1 Hall"></label>
+      <label>Bathrooms<input name="baths" id="pBaths" placeholder="3"></label>
+      <label class="wide">Full location<input name="location" id="pLocation" required placeholder="Sector, city, state"></label>
+      <label>Owner name<input name="owner" id="pOwner" required placeholder="Your name"></label>
+      <label>Phone / WhatsApp<input name="phone" id="pPhone" required placeholder="+91..."></label>
+      <label class="wide">Or Image URL<input name="image" id="pImage" type="url" placeholder="https://images.unsplash.com/..."></label>
+      <label class="wide">Or Video URL (optional)<input name="video" id="pVideo" type="url" placeholder="https://example.com/tour.mp4"></label>
+      <label class="wide">Description<textarea name="description" id="pDescription" rows="3" placeholder="Property highlights, nearby facilities, etc."></textarea></label>
+      <div class="wide">
+        <button class="primary" id="propertySubmitButton" type="submit">Publish Property</button>
+        <button type="button" class="outline" onclick="resetPropertyForm()">Clear Form</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="modal" id="callModal" onclick="if(event.target===this)closeModal('callModal')">
+  <div class="modal-box"><button class="close" onclick="closeModal('callModal')">×</button>
+    <h2>📹 Video Call / Contact</h2>
+    <p id="callMessage">Contact the property owner.</p>
+    <button class="primary" id="callContact" style="width:100%;margin-top:10px">Call Now</button>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+
+<script>
+const placeholderImage='https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=900&q=80';
+let adminUnlocked = false;
+
+let defaultDealerProfile = {
+  name: "HCD Real Estate Services",
+  phone: "+91 98765 43210",
+  email: "contact@hcdproperty.com",
+  hours: "Mon–Sat: 9:30 AM – 7:30 PM",
+  address: "Commercial Tower, Sector 62, Noida, UP",
+  photo: "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=300&q=80"
+};
+
+let dealerProfile = { ...defaultDealerProfile };
+
+try {
+  const savedProfile = localStorage.getItem('hcdDealerProfile');
+  if (savedProfile) dealerProfile = JSON.parse(savedProfile);
+} catch(e) {}
+
+let properties = [
+  {id:1,title:'3 BHK Independent House',type:'Residential',status:'For Sale',price:12500000,rate:6944,area:'1800 Sq Ft',bhk:'3 BHK',baths:'3 Bath',location:'Sector 72, Noida, Uttar Pradesh',owner:'Amit Verma',phone:'+91 98765 43210',image:'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=900&q=80',video:'',description:'Modern independent home with spacious rooms and parking.'},
+  {id:2,title:'Residential Plot',type:'Plot / Land',status:'For Sale',price:4500000,rate:3500,area:'128 Sq Yd',bhk:'—',baths:'—',location:'Vrindavan Yojna, Lucknow, UP',owner:'Neha Singh',phone:'+91 98765 43211',image:'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=900&q=80',video:'',description:'Residential plot in a developing neighborhood.'},
+  {id:3,title:'Shop / Commercial Space',type:'Commercial',status:'For Rent',price:35000,rate:250,area:'140 Sq Ft',bhk:'1 Hall',baths:'1 Bath',location:'Rajouri Garden, New Delhi',owner:'Sanjay Agarwal',phone:'+91 98765 43212',image:'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=900&q=80',video:'',description:'Street-facing commercial space for retail or office use.'},
+  {id:4,title:'2 BHK Apartment',type:'Residential',status:'For Sale',price:5200000,rate:4333,area:'1200 Sq Ft',bhk:'2 BHK',baths:'2 Bath',location:'Kharar, Mohali, Punjab',owner:'Pooja Mehta',phone:'+91 98765 43213',image:'https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=900&q=80',video:'',description:'Bright apartment in a well-connected residential community.'},
+  {id:5,title:'Farm House',type:'Farm House',status:'For Sale',price:25000000,rate:5000,area:'500 Sq Yd',bhk:'2 BHK',baths:'2 Bath',location:'Gurgaon Faridabad Road, Haryana',owner:'Rohit Bansal',phone:'+91 98765 43214',image:'https://images.unsplash.com/photo-1449158743715-0a90ebb6d2d8?auto=format&fit=crop&w=900&q=80',video:'',description:'Green outdoor space with a comfortable farmhouse.'},
+  {id:6,title:'4 BHK Luxury Villa',type:'Residential',status:'For Rent',price:120000,rate:40,area:'3000 Sq Ft',bhk:'4 BHK',baths:'4 Bath',location:'Golf Course Road, Gurgaon, Haryana',owner:'Kavita Sinha',phone:'+91 98765 43215',image:'https://images.unsplash.com/photo-1600607687644-c7171b42498f?auto=format&fit=crop&w=900&q=80',video:'',description:'Premium villa with a private garden and generous living space.'}
+];
+
+try {
+  const savedProperties = localStorage.getItem('hcdProperties');
+  if (savedProperties) {
+    const parsed = JSON.parse(savedProperties);
+    if (Array.isArray(parsed) && parsed.length) properties = parsed;
+  }
+} catch(e) {}
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDbg-yDrl1_FYXEDjLN9Ay0kWJ556Xvdeg",
+  authDomain: "smart-call-9950a.firebaseapp.com",
+  databaseURL: "https://smart-call-9950a-default-rtdb.firebaseio.com",
+  projectId: "smart-call-9950a",
+  storageBucket: "smart-call-9950a.firebasestorage.app",
+  messagingSenderId: "965909062156",
+  appId: "1:965909062156:web:60572b1b3409a7e5284429"
+};
+
+let hcdDb = null, applyingRemoteData = false;
+try {
+  if (window.firebase && !firebase.apps.length) firebase.initializeApp(firebaseConfig);
+  if (window.firebase) hcdDb = firebase.database();
+} catch (err) { console.error(err); }
+
+function setFirebaseStatus(msg) {
+  const el = document.getElementById('firebaseStatus');
+  if (el) el.textContent = msg;
+}
+
+function persistLocalData() {
+  try {
+    localStorage.setItem('hcdProperties', JSON.stringify(properties));
+    localStorage.setItem('hcdDealerProfile', JSON.stringify(dealerProfile));
+  } catch(e) {}
+  
+  if (hcdDb && !applyingRemoteData) {
+    hcdDb.ref('hcdPropertyWebsite/properties').set(properties);
+    hcdDb.ref('hcdPropertyWebsite/dealerProfile').set(dealerProfile);
+  }
+}
+
+function startFirebaseRealtimeSync() {
+  if (!hcdDb) { setFirebaseStatus('Offline mode (Local storage active)'); return; }
+  setFirebaseStatus('Connecting to Cloud...');
+  hcdDb.ref('hcdPropertyWebsite/properties').on('value', snap => {
+    if (snap.exists()) {
+      const data = snap.val();
+      applyingRemoteData = true;
+      properties = Array.isArray(data) ? data : Object.values(data || {});
+      localStorage.setItem('hcdProperties', JSON.stringify(properties));
+      renderProperties();
+      if (adminUnlocked) renderAdminProperties();
+      applyingRemoteData = false;
+    }
+    setFirebaseStatus('Connected to Cloud Database');
+  }, err => {
+    setFirebaseStatus('Local Database Active');
+  });
+
+  hcdDb.ref('hcdPropertyWebsite/dealerProfile').on('value', snap => {
+    if (snap.exists()) {
+      const remote = snap.val();
+      if (remote && typeof remote === 'object') {
+        applyingRemoteData = true;
+        dealerProfile = { ...defaultDealerProfile, ...remote };
+        localStorage.setItem('hcdDealerProfile', JSON.stringify(dealerProfile));
+        renderDealerProfile();
+        applyingRemoteData = false;
+      }
+    }
+  });
+}
+
+function formatPrice(val) {
+  const n = Number(val) || 0;
+  if (n >= 10000000) return '₹' + (n / 10000000).toFixed(2).replace(/\.00$/, '') + ' Cr';
+  if (n >= 100000) return '₹' + (n / 100000).toFixed(2).replace(/\.00$/, '') + ' Lakh';
+  return '₹' + n.toLocaleString('en-IN');
+}
+
+function renderDealerProfile() {
+  const card = document.getElementById('dealerProfileCard');
+  if (!card) return;
+  card.innerHTML = `
+    <img class="dealer-avatar" src="${dealerProfile.photo || defaultDealerProfile.photo}" alt="${dealerProfile.name}">
+    <div class="dealer-name">${dealerProfile.name}</div>
+    <div class="dealer-role">Verified Property Dealer</div>
+    <div class="dealer-detail"><span>📞</span><span>${dealerProfile.phone}</span></div>
+    <div class="dealer-detail"><span>✉️</span><span>${dealerProfile.email}</span></div>
+    <div class="dealer-detail"><span>🕒</span><span>${dealerProfile.hours}</span></div>
+    <div class="dealer-detail"><span>📍</span><span>${dealerProfile.address}</span></div>
+    <div class="dealer-actions">
+      <button class="primary" onclick="window.location.href='tel:${dealerProfile.phone}'">Contact Dealer</button>
+      <button class="outline" onclick="openAdd()">Manage Portal</button>
+    </div>
+  `;
+}
+
+function renderProperties() {
+  const container = document.getElementById('cards');
+  if (!container) return;
+
+  const loc = (document.getElementById('searchLocation').value || '').toLowerCase().trim();
+  const type = document.getElementById('searchType').value;
+  const maxBudget = Number(document.getElementById('searchBudget').value) || 0;
+  const bed = document.getElementById('bedFilter').value;
+  const sort = document.getElementById('sortBy').value;
+
+  const typeCheckboxes = Array.from(document.querySelectorAll('.type-filter:checked')).map(cb => cb.value);
+  const statusCheckboxes = Array.from(document.querySelectorAll('.status-filter:checked')).map(cb => cb.value);
+
+  let filtered = properties.filter(item => {
+    if (loc && !item.location.toLowerCase().includes(loc) && !item.title.toLowerCase().includes(loc)) return false;
+    if (type && item.type !== type) return false;
+    if (maxBudget > 0 && Number(item.price) > maxBudget) return false;
+    if (typeCheckboxes.length && !typeCheckboxes.includes(item.type)) return false;
+    if (statusCheckboxes.length && !statusCheckboxes.includes(item.status)) return false;
+    if (bed) {
+      if (bed === '4' && !item.bhk.includes('4') && !item.bhk.includes('5')) return false;
+      else if (bed !== '4' && !item.bhk.includes(bed)) return false;
+    }
+    return true;
+  });
+
+  if (sort === 'low') filtered.sort((a,b) => Number(a.price) - Number(b.price));
+  else if (sort === 'high') filtered.sort((a,b) => Number(b.price) - Number(a.price));
+  else filtered.sort((a,b) => Number(b.id) - Number(a.id));
+
+  document.getElementById('count').textContent = `(${filtered.length} properties found)`;
+
+  if (!filtered.length) {
+    container.innerHTML = `<div class="empty">No properties match your filter criteria.</div>`;
+    return;
+  }
+
+  container.innerHTML = filtered.map(item => `
+    <article class="property-card">
+      <div class="photo-wrap">
+        <img src="${item.image || placeholderImage}" onclick="openDetail(${item.id})" alt="${item.title}">
+        <span class="tag ${item.status === 'For Rent' ? 'rent' : ''}">${item.status}</span>
+        <button class="video-call" onclick="openCall('${item.owner}', '${item.phone}')">📹 Video Call</button>
+      </div>
+      <div class="card-body">
+        <h3 title="${item.title}">${item.title}</h3>
+        <div class="location">📍 ${item.location}</div>
+        <div class="price-row">
+          <span class="price">${formatPrice(item.price)}</span>
+          ${item.rate ? `<span class="rate">₹${item.rate}/sq ft</span>` : ''}
+        </div>
+        <div class="specs">
+          <span>📐 ${item.area}</span>
+          ${item.bhk && item.bhk !== '—' ? `<span>🛏️ ${item.bhk}</span>` : ''}
+          ${item.baths && item.baths !== '—' ? `<span>🚿 ${item.baths}</span>` : ''}
+        </div>
+        <div class="card-owner">
+          <div>
+            <b>${item.owner}</b>
+            <small>Owner / Agent</small>
+          </div>
+          <button class="call-owner" onclick="openCall('${item.owner}', '${item.phone}')">Contact</button>
+        </div>
+      </div>
+    </article>
+  `).join('');
+}
+
+function clearFilters() {
+  document.getElementById('searchLocation').value = '';
+  document.getElementById('searchType').value = '';
+  document.getElementById('searchBudget').value = '';
+  document.getElementById('bedFilter').value = '';
+  document.querySelectorAll('.type-filter, .status-filter').forEach(cb => cb.checked = false);
+  renderProperties();
+}
+
+function unlockAdmin(e) {
+  e.preventDefault();
+  const pin = document.getElementById('adminPin').value;
+  if (pin === '1234') { // Admin authentication PIN
+    adminUnlocked = true;
+    closeModal('adminGateModal');
+    document.getElementById('adminPin').value = '';
+    document.getElementById('pinError').style.display = 'none';
+    openModal('addModal');
+    renderAdminProperties();
+  } else {
+    document.getElementById('pinError').style.display = 'block';
+  }
+}
+
+function lockAdmin() {
+  adminUnlocked = false;
+  closeModal('addModal');
+}
+
+function openAdd() {
+  if (!adminUnlocked) {
+    openModal('adminGateModal');
+  } else {
+    openModal('addModal');
+    renderAdminProperties();
+  }
+}
+
+function renderAdminProperties() {
+  const container = document.getElementById('adminPropertyList');
+  if (!container) return;
+  document.getElementById('adminPropertyCount').textContent = `(${properties.length} total)`;
+  
+  container.innerHTML = properties.map(p => `
+    <div class="admin-property-row">
+      <img src="${p.image || placeholderImage}" alt="">
+      <div class="admin-property-info">
+        <b>${p.title} - ${formatPrice(p.price)}</b>
+        <small>${p.type} · ${p.location}</small>
+      </div>
+      <div class="admin-actions">
+        <button class="outline" onclick="editProperty(${p.id})">Edit</button>
+        <button class="danger" onclick="deleteProperty(${p.id})">Delete</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function toggleProfileEditor(show) {
+  const panel = document.getElementById('profileEditPanel');
+  if (show === undefined) panel.classList.toggle('open');
+  else if (show) panel.classList.add('open');
+  else panel.classList.remove('open');
+
+  if (panel.classList.contains('open')) {
+    const f = document.getElementById('profileForm');
+    f.name.value = dealerProfile.name || '';
+    f.phone.value = dealerProfile.phone || '';
+    f.email.value = dealerProfile.email || '';
+    f.hours.value = dealerProfile.hours || '';
+    f.address.value = dealerProfile.address || '';
+    f.photo.value = dealerProfile.photo || '';
+  }
+}
+
+function saveDealerProfile(e) {
+  e.preventDefault();
+  const f = e.target;
+  dealerProfile = {
+    name: f.name.value,
+    phone: f.phone.value,
+    email: f.email.value,
+    hours: f.hours.value,
+    address: f.address.value,
+    photo: f.photo.value
+  };
+  persistLocalData();
+  renderDealerProfile();
+  toggleProfileEditor(false);
+  alert('Profile updated successfully!');
+}
+
+function saveProperty(e) {
+  e.preventDefault();
+  const idVal = document.getElementById('propertyId').value;
+  const newProp = {
+    id: idVal ? Number(idVal) : Date.now(),
+    title: document.getElementById('pTitle').value,
+    type: document.getElementById('pType').value,
+    status: document.getElementById('pStatus').value,
+    price: Number(document.getElementById('pPrice').value),
+    rate: Number(document.getElementById('pRate').value) || 0,
+    area: document.getElementById('pArea').value,
+    bhk: document.getElementById('pBhk').value || '—',
+    baths: document.getElementById('pBaths').value || '—',
+    location: document.getElementById('pLocation').value,
+    owner: document.getElementById('pOwner').value,
+    phone: document.getElementById('pPhone').value,
+    image: document.getElementById('pImage').value,
+    video: document.getElementById('pVideo').value,
+    description: document.getElementById('pDescription').value
+  };
+
+  if (idVal) {
+    const idx = properties.findIndex(p => p.id === Number(idVal));
+    if (idx !== -1) properties[idx] = newProp;
+  } else {
+    properties.unshift(newProp);
+  }
+
+  persistLocalData();
+  renderProperties();
+  renderAdminProperties();
+  resetPropertyForm();
+  alert('Property saved successfully!');
+}
+
+function editProperty(id) {
+  const p = properties.find(item => item.id === id);
+  if (!p) return;
+  document.getElementById('propertyId').value = p.id;
+  document.getElementById('pTitle').value = p.title;
+  document.getElementById('pType').value = p.type;
+  document.getElementById('pStatus').value = p.status;
+  document.getElementById('pPrice').value = p.price;
+  document.getElementById('pRate').value = p.rate || '';
+  document.getElementById('pArea').value = p.area;
+  document.getElementById('pBhk').value = p.bhk;
+  document.getElementById('pBaths').value = p.baths;
+  document.getElementById('pLocation').value = p.location;
+  document.getElementById('pOwner').value = p.owner;
+  document.getElementById('pPhone').value = p.phone;
+  document.getElementById('pImage').value = p.image || '';
+  document.getElementById('pVideo').value = p.video || '';
+  document.getElementById('pDescription').value = p.description || '';
+  document.getElementById('propertyFormHeading').textContent = '✎ Edit Property';
+  document.getElementById('propertySubmitButton').textContent = 'Update Property';
+}
+
+function deleteProperty(id) {
+  if (confirm('Are you sure you want to delete this property?')) {
+    properties = properties.filter(p => p.id !== id);
+    persistLocalData();
+    renderProperties();
+    renderAdminProperties();
+  }
+}
+
+function resetPropertyForm() {
+  document.getElementById('addForm').reset();
+  document.getElementById('propertyId').value = '';
+  document.getElementById('propertyFormHeading').textContent = '＋ Add New Property';
+  document.getElementById('propertySubmitButton').textContent = 'Publish Property';
+}
+
+function openDetail(id) {
+  const p = properties.find(item => item.id === id);
+  if (!p) return;
+  const content = document.getElementById('detailContent');
+  content.innerHTML = `
+    <h2>${p.title}</h2>
+    <div class="media-layout">
+      <div>
+        <img src="${p.image || placeholderImage}" alt="${p.title}">
+        ${p.video ? `<video src="${p.video}" controls style="margin-top:10px"></video>` : ''}
+      </div>
+      <div>
+        <p class="price" style="font-size:24px">${formatPrice(p.price)}</p>
+        <p><b>Type:</b> ${p.type} (${p.status})</p>
+        <p><b>Area:</b> ${p.area}</p>
+        <p><b>Configuration:</b> ${p.bhk} | ${p.baths}</p>
+        <p><b>Location:</b> ${p.location}</p>
+        <p><b>Owner:</b> ${p.owner} (${p.phone})</p>
+        <p><b>Description:</b><br>${p.description || 'No description provided.'}</p>
+        <button class="primary" style="width:100%;margin-top:15px" onclick="openCall('${p.owner}', '${p.phone}')">Contact / Call Owner</button>
+      </div>
+    </div>
+  `;
+  openModal('detailModal');
+}
+
+function openCall(owner, phone) {
+  document.getElementById('callMessage').textContent = `Connect with ${owner} at ${phone}`;
+  document.getElementById('callContact').onclick = () => window.location.href = `tel:${phone}`;
+  openModal('callModal');
+}
+
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+// Initial loads
+renderDealerProfile();
+renderProperties();
+startFirebaseRealtimeSync();
+</script>
+</body>
+</html>
